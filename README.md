@@ -2,22 +2,56 @@
 
 This is a collection of tools to monitor deleted tweets, automate screenshoting, and archiving.
 
-* `streaming.py` and `save_to_db.py` work together to grab a real-time streamed timeline from Twitter and save all the results in a database.
+* `streaming.py` and `db_{mysql,sqlite}.py` work together to grab a real-time streamed timeline from Twitter and save all the results in a database.
 * All the tweets in the database are then screenshot by `screenshot.py`
 * Finally, the `monitoring.py` worker crawls through the database and checks if the tweets have been deleted.
 * I included `get_user_ids.py`, as the Twitter API often requires the ID, and not the screen name (eg not "@basilesimon").
 
 ## Dependencies and install
 * `git clone` this repo
-* `wget https://raw.githubusercontent.com/pypa/pip/master/contrib/get-pip.py` then `sudo python get-pip.py`
-* `pip install tweepy`
-* `pip install MySQL-python` (but you might need to `apt-get install build-essential python-dev libmysqlclient-dev`. I read it's easy to install on Max OS, with Homebrew)
-* `pip install needle`
-* `apt-get install mysql-server nodejs-legacy nodejs npm`
+* `wget https://raw.githubusercontent.com/pypa/pip/master/contrib/get-pip.py`
+then `sudo python get-pip.py`
+* pip install -r requirements.txt
+
+# Configuration
+you should put your credentials in a json file, we'll pick up a random
+entry, the default file is `config.json` but you can change that with command
+line arguments
+
+it should look like this:
+```json
+[
+    {
+        "consumer_key" : "XXXXXXXXXXXXXXXXXXXXXXXXX",
+        "consumer_secret" : "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+        "access_token": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+        "access_token_secret" : "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+    },
+    {
+        "consumer_key" : "YYYYYYYYYYYYYYYYYYYYYYYYY",
+        "consumer_secret" : "YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY",
+        "access_token": "YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY",
+        "access_token_secret" : "YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY"
+    },
+    {
+        "consumer_key" : "ZZZZZZZZZZZZZZZZZZZZZZZZZ",
+        "consumer_secret" : "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ",
+        "access_token": "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ",
+        "access_token_secret" : "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ"
+    }
+]
+```
+
+
+# for Mysql
+* `pip install MySQL-python` (but you might need to `apt-get install
+  build-essential python-dev libmysqlclient-dev`. I read it's easy to install
+  on Max OS, with Homebrew)
+* `apt-get install mysql-server 
+
+* apt-get install nodejs-legacy nodejs npm`
 * `sudo apt-get install build-essential chrpath git-core libssl-dev libfontconfig1-dev libxft-dev`
 * `sudo npm -g install phantomjs`
-* You will need a comma-separated list of user IDs, or a list of keywords you want to track. See all the other options in [the Docs](https://dev.twitter.com/streaming/reference/post/statuses/filter).
-* Obviously, you will also need your developer access keys and things. Pop them in the placeholders accordingly in each file.
 
 ### Comma-separated list of user IDs
 I use the wonderful [t from sferik](https://github.com/sferik/t), a command line tool for twitter shenanigans.
