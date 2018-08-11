@@ -3,17 +3,17 @@ import time
 import csv
 import sys
 
+from config import get_config
 
-consumer_key = ""
-consumer_secret = ""
-access_token = ""
-access_token_secret = ""
+config = "./config.json"
 
-auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
-auth.set_access_token(access_token, access_token_secret)
+
+authdata = get_config(config)
+
+auth = tweepy.OAuthHandler(authdata['consumer_key'], authdata['consumer_secret'])
+auth.set_access_token(authdata['access_token'], authdata['access_token_secret'])
 
 api = tweepy.API(auth)
-
 
 def get_user_ids():
     handles = []
