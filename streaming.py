@@ -45,6 +45,8 @@ ids += args
 
 if db == "mysql":
     from db_mysql import save_to_db
+elif db == "sqlite":
+    from db_sqlite import save_to_db
 else:
     print "ERROR could not find db driver for ", db
     sys.exit(-2)
