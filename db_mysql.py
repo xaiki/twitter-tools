@@ -8,6 +8,45 @@ db = MySQLdb.connect(host="",
                      db="",
                      charset="utf8")
 
+def writeSuccess(path):
+    cur = db.cursor()
+    try:
+        cur.execute("""UPDATE Tweets \
+                  SET Screenshot=1 \
+                  WHERE Tweet_Id=%s""", [path])
+        db.commit()
+        print "Screenshot OK. Tweet id ", path
+    except MySQLdb.Error, e:
+        try:
+            print "MySQL Error [%d]: %s" % (e.args[0], e.args[1])
+        except IndexError:
+            print "MySQL Error: %s" % str(e)
+
+        print "Error", e.args[0], e.args[1]
+        print "Warning:", path, "not saved to database"
+    return True
+
+def markDeleted(path):
+    cur = db.cursor()
+    try:
+        cur.execute("""UPDATE Tweets \
+                  SET Deleted=1 \
+                  WHERE Tweet_Id=%s""", [path])
+        db.commit()
+        print "Tweet marked as deleted ", path
+    except MySQLdb.Error, e:
+        try:
+            print "MySQL Error [%d]: %s" % (e.args[0], e.args[1])
+        except IndexError:
+            print "MySQL Error: %s" % str(e)
+
+        print "Error", e.args[0], e.args[1]
+        print "Warning:", path, "not saved to database"
+    return True
+
+def getLogs():
+    cur = db.cursor()
+    return cur.execute("SELECT Url, Tweet_Id FROM Tweets WHERE Screenshot=0 AND Deleted=0 ")
 
 def save_to_db(author, text, url, id_str):
     cur = db.cursor()

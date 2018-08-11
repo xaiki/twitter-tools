@@ -5,7 +5,6 @@ from getopt import getopt, GetoptError
 from tweepy.streaming import StreamListener
 from tweepy import OAuthHandler
 from tweepy import Stream
-from save_to_db import save_to_db
 from config import get_config
 
 r = re.compile("\s+")
@@ -44,6 +43,11 @@ for opt, arg in opts:
 config = get_config(config_file)
 ids += args
 
+if db == "mysql":
+    from db_mysql import save_to_db
+else:
+    print "ERROR could not find db driver for ", db
+    sys.exit(-2)
 # This is the listener, resposible for receiving data
 class StdOutListener(StreamListener):
 

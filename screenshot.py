@@ -1,14 +1,9 @@
 # Run me with 'nosetests screenshot.py --with-save-baseline --nocapture'
 
-import MySQLdb
 from needle.cases import NeedleTestCase
 from needle.driver import NeedlePhantomJS
 
-db = MySQLdb.connect(host="",
-                     user="",
-                     passwd="",
-                     db="")
-
+from db_mysql import db
 
 class captureTweetScreenshots(NeedleTestCase):
 
@@ -20,47 +15,14 @@ class captureTweetScreenshots(NeedleTestCase):
         self.list_to_screenshot()
 
     def writeSuccess(self, path):
-
-        cur = db.cursor()
-        try:
-            cur.execute("""UPDATE Tweets \
-                      SET Screenshot=1 \
-                      WHERE Tweet_Id=%s""", [path])
-            db.commit()
-            print "Screenshot OK. Tweet id ", path
-        except MySQLdb.Error, e:
-            try:
-                print "MySQL Error [%d]: %s" % (e.args[0], e.args[1])
-            except IndexError:
-                print "MySQL Error: %s" % str(e)
-
-            print "Error", e.args[0], e.args[1]
-            print "Warning:", path, "not saved to database"
-        return True
+        return db.writeSuccess(path)
 
     def markDeleted(self, path):
-
-        cur = db.cursor()
-        try:
-            cur.execute("""UPDATE Tweets \
-                      SET Deleted=1 \
-                      WHERE Tweet_Id=%s""", [path])
-            db.commit()
-            print "Tweet marked as deleted ", path
-        except MySQLdb.Error, e:
-            try:
-                print "MySQL Error [%d]: %s" % (e.args[0], e.args[1])
-            except IndexError:
-                print "MySQL Error: %s" % str(e)
-
-            print "Error", e.args[0], e.args[1]
-            print "Warning:", path, "not saved to database"
-        return True
+        return db.markDeleted(path)
 
     def list_to_screenshot(self):
         logFile = open('logfile.txt', 'w')
-        cur = db.cursor()
-        cur.execute("SELECT Url, Tweet_Id FROM Tweets WHERE Screenshot=0 AND Deleted=0 ")
+        cur = db.getLogs()
         for (Url, Tweet_Id) in cur:
             try:
                 self.driver.get(Url)
