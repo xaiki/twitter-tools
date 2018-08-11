@@ -70,4 +70,4 @@ if __name__ == "__main__":
     auth.set_access_token(config['access_token'], config['access_token_secret'])
 
     stream = Stream(auth, l)
-    stream.filter(ids)
+    stream.filter(follow=ids, track=track)
