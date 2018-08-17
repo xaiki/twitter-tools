@@ -1,3 +1,4 @@
+import signal
 import sys
 import re
 from getopt import getopt, GetoptError
@@ -8,7 +9,7 @@ from tweepy import Stream
 from config import get_config
 
 r = re.compile("\s+")
-db = "mysql"
+db_driver = "mysql"
 ids = []
 track = []
 argv = sys.argv
@@ -29,7 +30,7 @@ for opt, arg in opts:
     if opt in ("-c", "--config"):
         config_file = arg
     if opt in ("-D", "--db"):
-        db = arg
+        db_driver = arg
     if opt in ("-i", "--ids"):
         ids += r.sub(",", arg).split(',')
     if opt in ("-t", "--track"):
@@ -43,14 +44,20 @@ for opt, arg in opts:
 config = get_config(config_file)
 ids += args
 
-if db == "mysql":
-    from db_mysql import save_to_db
-elif db == "sqlite":
-    from db_sqlite import save_to_db
-elif db == "elasticsearch":
-    from db_elasticsearch import save_to_db
+if db_driver == "mysql":
+    from DB.mysql import Driver
+    filename = filename or "mysql://"
+elif db_driver == "sqlite":
+    from DB.sqlite import Driver
+    filename = filename or "twitter.sqlite"
+elif db_driver == "elasticsearch":
+    from DB.elasticsearch import Driver
+    filename = filename or "ec://"
+elif db_driver == "pynx":
+    from DB.pynx import Driver
+    filename = filename or "graph.gexf"
 else:
-    print "ERROR could not find db driver for ", db
+    print "ERROR could not find db driver for ", db_driver
     sys.exit(-2)
 # This is the listener, resposible for receiving data
 class StdOutListener(StreamListener):
@@ -59,7 +66,7 @@ class StdOutListener(StreamListener):
         tweet_url = "http://twitter.com/" + status.user.screen_name + "/status/" + status.id_str
         print "TWEET", status.text
         print "URL", tweet_url
-        save_to_db(status.user.screen_name, status.text, tweet_url, status.id_str)
+        db.save(tweet_url, status)
 
     def on_error(self, status):
         print status
@@ -68,6 +75,13 @@ if __name__ == "__main__":
     l = StdOutListener()
     auth = OAuthHandler(config['consumer_key'], config['consumer_secret'])
     auth.set_access_token(config['access_token'], config['access_token_secret'])
+
+    db = Driver(filename)
+    def signal_handler(sig, frame):
+        db.close()
+        sys.exit(0)
+
+    signal.signal(signal.SIGINT, signal_handler)
 
     stream = Stream(auth, l)
     stream.filter(follow=ids, track=track)
