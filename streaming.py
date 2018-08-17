@@ -15,6 +15,7 @@ ids = []
 track = []
 argv = sys.argv
 config_file = 0
+filename = None
 
 if ((sys.argv[0]).find(".py") != -1):
     argv = sys.argv[1:]
@@ -38,11 +39,9 @@ for opt, arg in opts:
         track += r.sub(",", arg).split(',')
 
     if opt in ("-f", "--file"):
-        with open(arg) as f:
-            for row in f:
-                ids.append(row)
+        filename=arg
 
-config = get_config(config_file)
+    config = get_config(config_file)
 ids += args
 
 if db_driver == "mysql":
