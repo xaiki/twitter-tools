@@ -3,6 +3,7 @@ import sys
 import re
 from getopt import getopt, GetoptError
 
+from urllib3.exceptions import ProtocolError
 from tweepy.streaming import StreamListener
 from tweepy import OAuthHandler
 from tweepy import Stream
@@ -84,4 +85,9 @@ if __name__ == "__main__":
     signal.signal(signal.SIGINT, signal_handler)
 
     stream = Stream(auth, l)
-    stream.filter(follow=ids, track=track)
+    print "STREAM",ids, track
+    while True:
+        try:
+            stream.filter(follow=ids, track=track)
+        except ProtocolError:
+            pass
