@@ -41,10 +41,10 @@ def add_users(G, text, status):
         users.append("@%s" % status.retweeted_status.user.screen_name)
     except AttributeError:
         pass
-    u = "@%s" % status.user.screen_name
+    u = normalize("@%s" % status.user.screen_name)
     add_node(G, u)
     for v in users:
-        add_edge(G, u, v)
+        add_edge(G, u, normalize(v))
 
 class Driver(generic.DB):
     def __init__(self, filename = "graph.gexf"):
