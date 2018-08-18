@@ -118,7 +118,7 @@ def parse_args(options):
 
 CONFIG_FILE = {'long': 'config', 'short': 'c', 'usage': '%s config.json', 'doc': 'config file', 'parse': load_json}
 IDS = {'long': 'ids', 'short': 'i', 'usage': '%s "id1,id2,id3"', 'doc': 'twitter user ids', 'parse': parse_comas}
-USERS = {'long': 'user', 'short': 'u', 'usage': '%s "user1,user2,usr3"', 'doc': 'twitter usernames', 'parse': parse_comas}
+USERS = {'long': 'users', 'short': 'u', 'usage': '%s "user1,user2,usr3"', 'doc': 'twitter usernames', 'parse': parse_comas}
 TERMS = {'long': 'track', 'short': 't', 'usage': '%s "term1,term2,term3"', 'doc': 'terms to track', 'parse': parse_comas}
 DBS =  {'long': 'database', 'short': 'D', 'usage': '%s [mysql|sqlite|elasticsearch]', 'doc': 'database system to use', 'parse': parse_db}
 CSV_FILE =  {'long': 'csv', 'short': 'f', 'usage': '%s file.csv', 'doc': 'load data from a csv file', 'parse': load_csv}
