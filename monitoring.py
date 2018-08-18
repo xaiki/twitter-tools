@@ -1,14 +1,11 @@
-import MySQLdb
+import sys
 import requests
+import config as c
 
+opts = c.parse_args([c.DBS])
+db = opts['database']
 
-db = MySQLdb.connect(host="",
-                     user="",
-                     passwd="",
-                     db="",
-                     charset="utf8")
 list_of_tweets = []
-
 
 def query(url):
     r = requests.get(url)
@@ -19,11 +16,7 @@ def query(url):
 
 
 def read_database(db):
-    cur = db.cursor()
-    cur.execute("""SELECT * \
-                FROM Tweets \
-                WHERE Deleted=0""")
-
+    cur = db.getTweets()
     for tweet in cur:
         list_of_tweets.append(tweet)
 	print tweet
@@ -33,11 +26,8 @@ def read_database(db):
 def check_tweet():
     for tweet in read_database(db):
         if query(tweet[3]) is True:
-            cur = db.cursor()
-            cur.execute("""UPDATE Tweets \
-                      SET Deleted=1 \
-                      WHERE Tweet_Id=%s""", [tweet[4]])
-            db.commit()
+            db.markDeleted(tweet[4])
+
             print "tweet deleted, id is", tweet[4]
             print "url is", tweet[3]
 
