@@ -35,6 +35,16 @@ def load_row_file(filename):
             ret.append(row)
     return ret
 
+def load_csv(filename):
+    ret = []
+    with open(filename, "rb") as csvfile:
+        reader = csv.reader(csvfile, delimiter=',', quotechar='|')
+        for row in reader:
+            for elem in row:
+                ret.extend(elem.strip().split(','))
+    return ret
+
+
 def parse_db(arg):
     try: 
         db_driver, filename = arg.split(':')
@@ -111,6 +121,8 @@ IDS = {'long': 'ids', 'short': 'i', 'usage': '%s "id1,id2,id3"', 'doc': 'twitter
 USERS = {'long': 'user', 'short': 'u', 'usage': '%s "user1,user2,usr3"', 'doc': 'twitter usernames', 'parse': parse_comas}
 TERMS = {'long': 'track', 'short': 't', 'usage': '%s "term1,term2,term3"', 'doc': 'terms to track', 'parse': parse_comas}
 DBS =  {'long': 'database', 'short': 'D', 'usage': '%s [mysql|sqlite|elasticsearch]', 'doc': 'database system to use', 'parse': parse_db}
+CSV_FILE =  {'long': 'csv', 'short': 'f', 'usage': '%s file.csv', 'doc': 'load data from a csv file', 'parse': load_csv}
+
 options = [CONFIG_FILE, IDS, USERS, TERMS, DBS]
 
 if __name__ == '__main__':
