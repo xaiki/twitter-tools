@@ -3,7 +3,10 @@
 from needle.cases import NeedleTestCase
 from needle.driver import NeedlePhantomJS
 
-from db_mysql import db
+import config as c
+
+opts = c.parse_args([c.DBS])
+db = opts['database']
 
 class captureTweetScreenshots(NeedleTestCase):
 
