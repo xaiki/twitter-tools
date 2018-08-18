@@ -1,37 +1,18 @@
-from getopt import getopt, GetoptError
 import tweepy
 import time
 import csv
 import sys
+import config as c
 
-from config import get_config
+opts = c.parse_args([c.CONFIG_FILE, c.CSV_FILE, c.USERS])
 
-config = "./config.json"
+authdata = opts['config'][0]
+users = None
+try: 
+    users = opts['users']
+except KeyError:
+    users = opts['csv']
 
-if ((sys.argv[0]).find(".py") != -1):
-    argv = sys.argv[1:]
-
-def usage():
-    print "usage: [-c|--config config.json] [-f|--file users.csv] [user1 [user2 [user3] ...]]"
-
-try:
-    opts, args = getopt(argv, "c:f:", ["config", "file"])
-except GetoptError:
-    usage()
-    sys.exit(2)
-for opt, arg in opts:
-    if opt in ("-c", "--config"):
-        config = arg
-    if opt in ("-f", "--file"):
-        with open(arg, "rb") as csvfile:
-            reader = csv.reader(csvfile, delimiter=',', quotechar='|')
-            for row in reader:
-                for elem in row:
-                    users.extend(elem.strip().split(','))
-
-users += args
-
-authdata = get_config(config)
 print "looking for", users
 
 auth = tweepy.OAuthHandler(authdata['consumer_key'], authdata['consumer_secret'])
