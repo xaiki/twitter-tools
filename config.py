@@ -28,9 +28,9 @@ def load_json(filename):
     with open(filename) as data:
         return json.load(data)
 
-def load_row_file(file):
+def load_row_file(filename):
     ret = []
-    with open(file) as f:
+    with open(filename) as f:
         for row in f:
             ret.append(row)
     return ret
