@@ -28,8 +28,14 @@ if __name__ == "__main__":
     opts = c.parse_args([c.CONFIG_FILE, c.IDS, c.TERMS, c.DBS])
     db = opts['database']
     config = opts['config'][0]
-    ids = opts['ids']
-    track = opts['track']
+    try:
+	ids = opts['ids']
+    except KeyError: 
+	ids = []
+    try:
+        track = opts['track']
+    except KeyError:
+        track = []
 
     l = StdOutListener()
     auth = OAuthHandler(config['consumer_key'], config['consumer_secret'])
