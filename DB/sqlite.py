@@ -1,9 +1,9 @@
 import sqlite3
 import generic
 
-class SQLiteDriver(generic.DB):
+class Driver(generic.DB):
     def __init__(self, filename = 'twitter.db'):
-        super(self)
+	generic.DB.__init__(self)
         self.db = sqlite3.connect(filename)
 
 
@@ -42,12 +42,12 @@ class SQLiteDriver(generic.DB):
         return False
 
     def getLogs(self, ):
-        cur = db.cursor()
+        cur = self.db.cursor()
         return cur.execute("SELECT Url, Tweet_Id FROM Tweets WHERE Screenshot=0 AND Deleted=0 ")
 
     def save(self, url, status):
         (author, text, id_str) = (status.user.screen_name, status.text, status.id_str)
-        cur = db.cursor()
+        cur = self.db.cursor()
 
         cur.execute("CREATE TABLE IF NOT EXISTS Tweets (Id INTEGER PRIMARY KEY, \
                     Author VARCHAR(255), \
@@ -62,9 +62,9 @@ class SQLiteDriver(generic.DB):
             INSERT INTO Tweets(Author, Text, Url, Tweet_Id, Screenshot, Deleted)
             VALUES ('%s', '%s', '%s', '%s', '%s', '%s')
             """ % (author, text, url, id_str, 0, 0))
-            db.commit()
+            self.db.commit()
             #print "Wrote to database:", author, id_str
         except sqlite3.Error, e:
             print "Error", e
-            db.rollback()
+            self.db.rollback()
             print "ERROR writing database"
