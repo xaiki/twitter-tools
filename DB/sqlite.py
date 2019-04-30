@@ -8,7 +8,7 @@ class Driver(generic.DB):
 
 
     def getTweets(self):
-        self.db.cursor()
+        cur = self.db.cursor()
         return cur.execute("""SELECT * \
                     FROM Tweets \
                     WHERE Deleted=0""")
