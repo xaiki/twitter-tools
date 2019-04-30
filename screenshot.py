@@ -6,7 +6,7 @@ from needle.driver import NeedlePhantomJS
 import config as c
 
 opts = c.parse_args([c.DBS])
-db = opts['database']
+db = opts.db
 
 class captureTweetScreenshots(NeedleTestCase):
 

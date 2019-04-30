@@ -3,7 +3,7 @@ import requests
 import config as c
 
 opts = c.parse_args([c.DBS])
-db = opts['database']
+db = opts.db
 
 list_of_tweets = []
 

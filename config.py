@@ -2,83 +2,104 @@ import re
 import sys
 import json
 
-from getopt import getopt, GetoptError
+import argparse
 from random import randint
+
+
+class LoadJSONAction(argparse.Action):
+    def __call__(self, parser, namespace, filename, option_string=None):
+        with open(filename) as data:
+            setattr(namespace, self.dest, json.load(data))
+
+class LoadRowFileAction(argparse.Action):
+    def __call__(self, parser, namespace, filename, option_string=None):
+        ret = []
+        with open(filename) as f:
+            for row in f:
+                ret.append(row)
+        setattr(namespace, self.dest, ret)
+
+class LoadCSVAction(argparse.Action):
+    def __call__(self, parser, namespace, filename, option_string=None):
+        ret = []
+        with open(filename, "rb") as csvfile:
+            reader = csv.reader(csvfile, delimiter=',', quotechar='|')
+            for row in reader:
+                for elem in row:
+                    ret.extend(elem.strip().split(','))
+        setattr(namespace, self.dest, ret)
+
+class LoadDBDriverAction(argparse.Action):
+    def __call__(self, parser, namespace, arg, option_string=None):
+        try: 
+            db_driver, filename = arg.split(':')
+        except ValueError:
+            db_driver = arg
+            filename = None
+        finally:
+            if db_driver == "mysql":
+                from DB.mysql import Driver
+                filename = filename or "mysql://"
+            elif db_driver == "sqlite":
+                from DB.sqlite import Driver
+                filename = filename or "twitter.sqlite"
+            elif db_driver == "elasticsearch":
+                from DB.elasticsearch import Driver
+                filename = filename or "ec://"
+            elif db_driver == "pynx":
+                from DB.pynx import Driver
+                filename = filename or "graph.gexf"
+            else:
+                print "ERROR could not find db driver for ", db_driver
+                sys.exit(-2)
+        setattr(namespace, self.dest, Driver(filename))
+
+class ParseComasAction(argparse.Action):
+    def __call__(self, parser, namespace, values, option_string=None):
+        setattr(namespace, self.dest, r.sub(",", values).split(','))
+
+CONFIG_FILE = {
+    'flags': '-c, --config',
+    'dest': 'config',
+    'help': 'config file',
+    'action': LoadJSONAction
+}
+IDS = {
+    'flags': '-i, --ids',
+    'dest': 'ids',
+    'help': 'twitter user ids, as a comma-separated list',
+    'action': ParseComasAction
+}
+USERS = {
+    'flags': '-u, --users',
+    'dest': 'users',
+    'help': 'twitter usernames, as a comma-separated list',
+    'action': ParseComasAction
+}
+TERMS = {
+    'flags': '-t, --track',
+    'dest': 'track',
+    'help': 'terms to track, as a comma-separated list',
+    'action': ParseComasAction
+}
+DBS = {
+    'flags': '-D, --database',
+    'dest': 'db',
+    'help': 'database system to use (mysql, sqlite, elasticsearch)',
+    'default': 'sqlite',
+    'action': LoadDBDriverAction
+}
+CSV_FILE = {
+    'flags': '-f, --csv',
+    'dest': 'csv',
+    'help': 'load data from a csv file',
+    'action': LoadRowFileAction
+}
+
+options = [CONFIG_FILE, IDS, USERS, TERMS, DBS]
 
 r = re.compile("\s+")
 filename = None
-
-def get_config(filename):
-    d = load_json(filename)
-    return d[randint(0, d.__len__() - 1)]
-
-def o2u(option):
-    args = "-%s|--%s" % (option['short'].replace(':', ''), option['long'])
-    usage = option['usage'] % args
-    return "\t[%s]\t%s\n" % (usage, option['doc'])
-
-def usage(name, options):
-    print "usage: %s" %name
-    return reduce(lambda acc, cur: acc + o2u(cur), options, "")
-
-def identity(a):
-    return a
-
-def load_json(filename):
-    with open(filename) as data:
-        return json.load(data)
-
-def load_row_file(filename):
-    ret = []
-    with open(filename) as f:
-        for row in f:
-            ret.append(row)
-    return ret
-
-def load_csv(filename):
-    ret = []
-    with open(filename, "rb") as csvfile:
-        reader = csv.reader(csvfile, delimiter=',', quotechar='|')
-        for row in reader:
-            for elem in row:
-                ret.extend(elem.strip().split(','))
-    return ret
-
-
-def parse_db(arg):
-    try: 
-        db_driver, filename = arg.split(':')
-    except ValueError:
-        db_driver = arg
-        filename = None
-    finally:
-        if db_driver == "mysql":
-            from DB.mysql import Driver
-            filename = filename or "mysql://"
-        elif db_driver == "sqlite":
-            from DB.sqlite import Driver
-            filename = filename or "twitter.sqlite"
-        elif db_driver == "elasticsearch":
-            from DB.elasticsearch import Driver
-            filename = filename or "ec://"
-        elif db_driver == "pynx":
-            from DB.pynx import Driver
-            filename = filename or "graph.gexf"
-        else:
-            print "ERROR could not find db driver for ", db_driver
-            sys.exit(-2)
-        return Driver(filename)
-
-def parse_comas(arg):
-    return r.sub(",", arg).split(',')
-
-def make_short(o):
-    if o.has_key('parse'): return o['short'] + ':'
-    return o['short']
-
-def make_long(o):
-    if o.has_key('parse'): return o['long'] + '='
-    return o['long']
 
 def parse_args(options):
     argv = sys.argv
@@ -86,44 +107,14 @@ def parse_args(options):
     if ((sys.argv[0]).find(".py") != -1):
         argv = sys.argv[1:]
 
-    shorts = "".join(map(make_short, options))
-    longs = map(make_long, options)
-    sopthash = dict(map(lambda o: (o['short'], o), options))
-    lopthash = dict(map(lambda o: (o['long'], o), options))
-    parsed = {}
+    parser = argparse.ArgumentParser(description='Twitter Tools: query twitter from the commandline')
 
-    def usage():
-        print "usage: %s" % "\n".join(map(o2u, options))
+    def add_argument(o):
+        flags = o.pop('flags')
+        parser.add_argument(flags, **o)
 
-    def get_key(opt):
-        try:
-            return sopthash[opt[1:]]
-        except KeyError:
-            return lopthash[opt[2:]]
-
-    try:
-        opts, args = getopt(argv, shorts, longs)
-    except GetoptError:
-        usage()
-        sys.exit(2)
-    for opt, arg in opts:
-        try:
-            k = get_key(opt)
-            parsed.update({k['long']: k['parse'](arg)})
-        except KeyError:
-            print "couldn't parse arg: %s, %s" % (opt, arg)
-
-    print "parsed: %s" % (parsed)
-    return parsed
-
-CONFIG_FILE = {'long': 'config', 'short': 'c', 'usage': '%s config.json', 'doc': 'config file', 'parse': load_json}
-IDS = {'long': 'ids', 'short': 'i', 'usage': '%s "id1,id2,id3"', 'doc': 'twitter user ids', 'parse': parse_comas}
-USERS = {'long': 'users', 'short': 'u', 'usage': '%s "user1,user2,usr3"', 'doc': 'twitter usernames', 'parse': parse_comas}
-TERMS = {'long': 'track', 'short': 't', 'usage': '%s "term1,term2,term3"', 'doc': 'terms to track', 'parse': parse_comas}
-DBS =  {'long': 'database', 'short': 'D', 'usage': '%s [mysql|sqlite|elasticsearch]', 'doc': 'database system to use', 'parse': parse_db}
-CSV_FILE =  {'long': 'csv', 'short': 'f', 'usage': '%s file.csv', 'doc': 'load data from a csv file', 'parse': load_csv}
-
-options = [CONFIG_FILE, IDS, USERS, TERMS, DBS]
+    map(add_argument, options)
+    return parser.parse_args()
 
 if __name__ == '__main__':
     parse_args(options)

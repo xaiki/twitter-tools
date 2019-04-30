@@ -26,16 +26,11 @@ class StdOutListener(StreamListener):
 
 if __name__ == "__main__":
     opts = c.parse_args([c.CONFIG_FILE, c.IDS, c.TERMS, c.DBS])
-    db = opts['database']
-    config = opts['config'][0]
-    try:
-	ids = opts['ids']
-    except KeyError: 
-	ids = []
-    try:
-        track = opts['track']
-    except KeyError:
-        track = []
+
+    db = opts.db
+    config = opts.config[0]
+    ids = opts.ids or []
+    track = opts.track or []
 
     l = StdOutListener()
     auth = OAuthHandler(config['consumer_key'], config['consumer_secret'])
