@@ -4,33 +4,41 @@ import csv
 import sys
 import config as c
 
-opts = c.parse_args([c.CONFIG_FILE, c.CSV_FILE, c.USERS])
 
-authdata = opts['config'][0]
-users = None
-try: 
-    users = opts['users']
-except KeyError:
-    users = opts['csv']
+def twitter_login():
+    opts = c.parse_args([c.CONFIG_FILE, c.CSV_FILE, c.USERS])
 
-print "looking for", users
+    authdata = opts["config"][0]
+    users = None
+    try:
+        users = opts["users"]
+    except KeyError:
+        users = opts["csv"]
 
-auth = tweepy.OAuthHandler(authdata['consumer_key'], authdata['consumer_secret'])
-auth.set_access_token(authdata['access_token'], authdata['access_token_secret'])
+    print ("looking for", users)
 
-api = tweepy.API(auth)
+    auth = tweepy.OAuthHandler(authdata["consumer_key"], authdata["consumer_secret"])
+    auth.set_access_token(authdata["access_token"], authdata["access_token_secret"])
 
-def get_user_ids():
+    return tweepy.API(auth)
+
+
+API = twitter_login()
+
+
+def get_user_ids(api=API):
     handles = []
     for screen_name in users:
         try:
             u = api.get_user(screen_name)
-            print screen_name, u._json['id']
-            handles.append(str(u._json['id']))
+            print screen_name, u._json["id"]
+            handles.append(str(u._json["id"]))
         except Exception, e:
-            print 'ERROR', e, authdata
+            print "ERROR", e, authdata
 
-    sys.stderr.write(' '.join(handles) + "\n")
+    sys.stderr.write(" ".join(handles) + "\n")
     return handles
-if __name__ == '__main__':
+
+
+if __name__ == "__main__":
     get_user_ids()

@@ -8,8 +8,8 @@ import config as c
 opts = c.parse_args([c.DBS])
 db = opts.db
 
-class captureTweetScreenshots(NeedleTestCase):
 
+class captureTweetScreenshots(NeedleTestCase):
     @classmethod
     def get_web_driver(cls):
         return NeedlePhantomJS()
@@ -24,20 +24,20 @@ class captureTweetScreenshots(NeedleTestCase):
         return db.markDeleted(path)
 
     def list_to_screenshot(self):
-        logFile = open('logfile.txt', 'w')
+        logFile = open("logfile.txt", "w")
         cur = db.getLogs()
         for (Url, Tweet_Id) in cur:
             try:
                 self.driver.get(Url)
             except:
-                print "Url doesnt exist ", Url
+                print("Url doesnt exist ", Url)
                 logFile.write("Url doesnt exist \n")
                 continue
             try:
-                self.assertScreenshot('.tweet', Tweet_Id)
+                self.assertScreenshot(".tweet", Tweet_Id)
 
             except:
-                print "Tweet deleted ", Url
+                print("Tweet deleted ", Url)
                 self.markDeleted(Tweet_Id)
                 message = "Tweet deleted %s \n" % Url
                 logFile.write(message)
@@ -46,5 +46,7 @@ class captureTweetScreenshots(NeedleTestCase):
             message = "Tweet screenshotted %s \n" % Url
             logFile.write(message)
         logFile.close()
+
+
 # if __name__ == '__main__':
 #     list_to_screenshot(db)
