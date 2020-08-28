@@ -1,5 +1,5 @@
 import sqlite3
-from DB import generic
+from . import generic
 
 class Driver(generic.DB):
     def __init__(self, filename="twitter.db"):
@@ -33,7 +33,7 @@ class Driver(generic.DB):
             cur.execute(query)
             self.db.commit()
         except sqlite3.Error as e:
-            print("Error", e)
+            print(("Error", e))
             return False
         return True
 
@@ -43,9 +43,9 @@ class Driver(generic.DB):
                       SET Screenshot=1 \
                       WHERE Tweet_Id='%s'"""
         ):
-            print("Screenshot OK. Tweet id ", path)
+            print(("Screenshot OK. Tweet id ", path))
             return True
-        print("Warning:", path, "not saved to database")
+        print(("Warning:", path, "not saved to database"))
         return False
 
     def markDeleted(self, path):
@@ -55,9 +55,9 @@ class Driver(generic.DB):
                       WHERE Tweet_Id='%s'"""
             % [path]
         ):
-            print("Tweet marked as deleted ", path)
+            print(("Tweet marked as deleted ", path))
             return True
-        print("Warning:", path, "not saved to database")
+        print(("Warning:", path, "not saved to database"))
         return False
 
     def getLogs(self,):
@@ -79,6 +79,6 @@ class Driver(generic.DB):
             self.db.commit()
             # print "Wrote to database:", author, id_str
         except sqlite3.Error as e:
-            print("Error", e, c)
+            print(("Error", e, c))
             self.db.rollback()
             print("ERROR writing database")
