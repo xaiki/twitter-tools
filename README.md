@@ -15,7 +15,7 @@ then `sudo python get-pip.py`
 
 # Configuration
 there is a nifty tool that will generate a config file in the default location (`~/.config/twitter-tools/config.json`), just run `python3 ./setup.py` and you'll be prompted.
-[./config-screenshot.png]
+![screenshot](./config-screenshot.png)
 
 
 we'll pick up the first entry, not that we'll look for `./config.json` and
