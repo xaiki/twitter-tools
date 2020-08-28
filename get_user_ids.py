@@ -30,13 +30,11 @@ if __name__ == "__main__":
     opts = c.parse_args([c.CONFIG_FILE, c.CSV_FILE, c.USERS])
 
     config = opts.config[0]
-    users = None
+    ids = None
     try:
-        users = opts.users
+        ids = opts.ids
     except KeyError:
-        users = opts.csv
+        ids = fetch(config, opts.csv)
 
-    handles = fetch(config, users)
-
-    print("\n".join(handles) + "\n")
+    print("\n".join(ids) + "\n")
     
