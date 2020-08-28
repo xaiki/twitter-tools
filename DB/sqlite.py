@@ -6,6 +6,19 @@ class Driver(generic.DB):
         generic.DB.__init__(self)
         self.db = sqlite3.connect(filename)
 
+        cur = self.db.cursor()
+
+        cur.execute(
+            "CREATE TABLE IF NOT EXISTS Tweets (Id INTEGER PRIMARY KEY, \
+                    Author VARCHAR(255), \
+                    Text VARCHAR(255), \
+                    Url VARCHAR(255), \
+                    Tweet_Id VARCHAR(255), \
+                    Screenshot INTEGER, \
+                    Deleted INTEGER)"
+        )
+
+
     def getTweets(self):
         cur = self.db.cursor()
         return cur.execute(
@@ -56,16 +69,6 @@ class Driver(generic.DB):
     def save(self, url, status):
         (author, text, id_str) = (status.user.screen_name, status.text, status.id_str)
         cur = self.db.cursor()
-
-        cur.execute(
-            "CREATE TABLE IF NOT EXISTS Tweets (Id INTEGER PRIMARY KEY, \
-                    Author VARCHAR(255), \
-                    Text VARCHAR(255), \
-                    Url VARCHAR(255), \
-                    Tweet_Id VARCHAR(255), \
-                    Screenshot INTEGER, \
-                    Deleted INTEGER)"
-        )
 
         try:
             cur.execute(
