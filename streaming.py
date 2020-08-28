@@ -41,7 +41,7 @@ def run():
     """
     main entry point
     """
-    opts = c.parse_args([c.CONFIG_FILE, c.IDS, c.DBS, c.TERMS])
+    opts = c.parse_args([c.CONFIG_FILE, c.IDS, c.USERS, c.DBS, c.TERMS])
 
     if opts.db == c.DBS["default"]:
         opts.db = c.load_db_driver(c.DBS["default"])

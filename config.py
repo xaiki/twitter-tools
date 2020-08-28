@@ -7,6 +7,8 @@ import csv
 import argparse
 import logging
 
+from get_user_ids import fetch
+
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 
 def flatten(lists):
@@ -98,6 +100,17 @@ class ParseComasAction(argparse.Action):
     def __call__(self, parser, namespace, values, option_string=None):
         setattr(namespace, self.dest, flatten([v.split(",") for v in values]))
 
+class FetchUsersAction(argparse.Action):
+    """
+    Parse a coma separated usernames into an array of user ids
+    """
+
+    def __call__(self, parser, namespace, values, option_string=None):
+        old_ids = getattr(namespace, self.dest) or ()
+        ids = fetch(namespace.config[0], flatten([v.split(',') for v in values]))
+        ids.extend(old_ids)
+        setattr(namespace, self.dest, ids)
+
 def load_config(paths):
     def try_load_json(j):
         try:
@@ -126,21 +139,22 @@ CONFIG_FILE = {
 IDS = {
     "flags": "-i, --ids",
     "dest": "ids",
-    "nargs": "+",
+    "nargs": "*",
     "help": "twitter user ids, as a comma-separated list",
     "action": ParseComasAction,
 }
 USERS = {
     "flags": "-u, --users",
-    "dest": "users",
-    "nargs": "+",
+    "dest": "ids",
+    "nargs": "*",
     "help": "twitter usernames, as a comma-separated list",
-    "action": ParseComasAction,
+    "action": FetchUsersAction,
 }
 TERMS = {
     "flags": "-t, --track",
     "dest": "track",
-    "nargs": "+",
+    "nargs": "*",
+    "default": [],
     "help": "terms to track, as a comma-separated list",
     "action": ParseComasAction,
 }
