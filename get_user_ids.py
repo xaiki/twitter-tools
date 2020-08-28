@@ -8,37 +8,32 @@ import config as c
 def twitter_login():
     opts = c.parse_args([c.CONFIG_FILE, c.CSV_FILE, c.USERS])
 
-    authdata = opts["config"][0]
+    authdata = opts.config[0]
     users = None
     try:
-        users = opts["users"]
+        users = opts.users
     except KeyError:
-        users = opts["csv"]
+        users = opts.csv
 
-    print(("looking for", users))
+    sys.stderr.write(f"looking for: {users}")
+
 
     auth = tweepy.OAuthHandler(authdata["consumer_key"], authdata["consumer_secret"])
     auth.set_access_token(authdata["access_token"], authdata["access_token_secret"])
 
-    return tweepy.API(auth)
+    return tweepy.API(auth), users
 
 
-API = twitter_login()
-
-
-def get_user_ids(api=API):
+if __name__ == "__main__":
+    api, users = twitter_login()
     handles = []
     for screen_name in users:
         try:
             u = api.get_user(screen_name)
-            print(screen_name, u._json["id"])
+            sys.stderr.write(f"""\n{screen_name} -> {u._json["id"]}""")
             handles.append(str(u._json["id"]))
         except Exception as e:
-            print("ERROR", e, authdata)
+            sys.stderr.write(f"ERROR: {e}, {authdata}")
 
-    sys.stderr.write(" ".join(handles) + "\n")
-    return handles
-
-
-if __name__ == "__main__":
-    get_user_ids()
+    print("\n".join(handles) + "\n")
+    

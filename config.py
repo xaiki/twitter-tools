@@ -173,10 +173,8 @@ def parse_args(options):
 
     add_argument(last)
 
-    opts = parser.parse_args()
-    if opts.db == DBS["default"]:
-        opts.db = load_db_driver(DBS["default"])
-    return opts
+    return parser.parse_args()
+
 
 if __name__ == "__main__":
     parse_args(options)
