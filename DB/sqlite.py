@@ -1,6 +1,5 @@
 import sqlite3
-import generic
-
+from DB import generic
 
 class Driver(generic.DB):
     def __init__(self, filename="twitter.db"):
