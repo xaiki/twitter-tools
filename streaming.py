@@ -43,23 +43,18 @@ def run():
     """
     opts = c.parse_args([c.CONFIG_FILE, c.IDS, c.USERS, c.DBS, c.TERMS])
 
-    if opts.db == c.DBS["default"]:
-        opts.db = c.load_db_driver(c.DBS["default"])
-    
     database = opts.db
     config = opts.config[0]
 
     stream_config = {
         "follow": opts.ids or None,
         "track": opts.track or None
-
     }
 
     listener = StdOutListener(database)
 
     auth = tweepy.OAuthHandler(config["consumer_key"], config["consumer_secret"])
     auth.set_access_token(config["access_token"], config["access_token_secret"])
-
 
     api = tweepy.API(auth)
     # test authentication

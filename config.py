@@ -9,6 +9,8 @@ import logging
 
 from get_user_ids import fetch
 
+from DB.multi import MultiDriver
+
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 
 def flatten(lists):
@@ -53,6 +55,7 @@ class LoadCSVAction(argparse.Action):
 
 
 def load_db_driver(arg):
+    db_driver, filename = None, None
     try:
         db_driver, filename = arg.split(":")
     except ValueError:
@@ -89,8 +92,8 @@ class LoadDBDriverAction(argparse.Action):
     load a db driver by name
     """
 
-    def __call__(self, parser, namespace, arg, option_string=None):
-        setattr(namespace, self.dest, load_db_driver(arg))
+    def __call__(self, parser, namespace, values, option_string=None):
+        setattr(namespace, self.dest, [load_db_driver(v) for v in values])
 
 class ParseComasAction(argparse.Action):
     """
@@ -110,7 +113,7 @@ class FetchUsersAction(argparse.Action):
         ids = fetch(namespace.config[0], flatten([v.split(',') for v in values]))
         ids.extend(old_ids)
         setattr(namespace, self.dest, ids)
-
+        
 def load_config(paths):
     def try_load_json(j):
         try:
@@ -162,6 +165,7 @@ DBS = {
     "flags": "-D, --database",
     "dest": "db",
     "help": "database system to use (mysql, sqlite, elasticsearch)",
+    "nargs": "*",
     "default": "tsv",
     "action": LoadDBDriverAction,
 }
@@ -194,8 +198,14 @@ def parse_args(options):
 
     add_argument(last)
 
-    return parser.parse_args()
-
+    opts = parser.parse_args()
+    if DBS in options:
+        if opts.db == DBS["default"]:
+            opts.db = MultiDriver([load_db_driver(DBS["default"])])
+        else:
+            opts.db = MultiDriver(opts.db)
+    
+    return opts
 
 if __name__ == "__main__":
     parse_args(options)
