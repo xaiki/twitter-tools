@@ -15,7 +15,7 @@ def twitter_login():
     except KeyError:
         users = opts["csv"]
 
-    print ("looking for", users)
+    print(("looking for", users))
 
     auth = tweepy.OAuthHandler(authdata["consumer_key"], authdata["consumer_secret"])
     auth.set_access_token(authdata["access_token"], authdata["access_token_secret"])
@@ -31,10 +31,10 @@ def get_user_ids(api=API):
     for screen_name in users:
         try:
             u = api.get_user(screen_name)
-            print screen_name, u._json["id"]
+            print(screen_name, u._json["id"])
             handles.append(str(u._json["id"]))
-        except Exception, e:
-            print "ERROR", e, authdata
+        except Exception as e:
+            print("ERROR", e, authdata)
 
     sys.stderr.write(" ".join(handles) + "\n")
     return handles

@@ -71,7 +71,7 @@ def load_db_driver(arg):
 
             filename = filename or "graph.gexf"
         else:
-            print("ERROR could not find db driver for ", db_driver)
+            print(("ERROR could not find db driver for ", db_driver))
             sys.exit(-2)
 
         return Driver(filename)
@@ -100,12 +100,12 @@ def load_config(paths):
         except FileNotFoundError:
             return None
         except Exception as e:
-            print(e, "is your config file well formated ?")
+            print((e, "is your config file well formated ?"))
             raise e
 
     for p in paths:
         c = try_load_json(os.path.expanduser(p))
-        print(p, c)
+        print((p, c))
         if c: return c
 
     return []

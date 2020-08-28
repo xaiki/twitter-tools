@@ -27,15 +27,15 @@ class StdOutListener(StreamListener):
         tweet_url = (
             "http://twitter.com/" + status.user.screen_name + "/status/" + status.id_str
         )
-        print("TWEET", status.text)
-        print("URL", tweet_url)
+        print(("TWEET", status.text))
+        print(("URL", tweet_url))
         self.database.save(tweet_url, status)
 
     def on_error(self, status):
         """
         error handler
         """
-        print("error", status)
+        print(("error", status))
 
 def run():
     """
@@ -73,7 +73,7 @@ def run():
     signal.signal(signal.SIGINT, signal_handler)
 
     stream = tweepy.Stream(auth = auth, listener = listener)
-    print("STREAM", stream_config)
+    print(("STREAM", stream_config))
     while True:
         try:
             stream.filter(**stream_config)

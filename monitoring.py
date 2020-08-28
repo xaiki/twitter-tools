@@ -28,8 +28,8 @@ def check_tweet():
         if query(tweet[3]) is True:
             db.markDeleted(tweet[4])
 
-            print("tweet deleted, id is", tweet[4])
-            print("url is", tweet[3])
+            print(("tweet deleted, id is", tweet[4]))
+            print(("url is", tweet[3]))
 
 
 if __name__ == "__main__":
