@@ -71,13 +71,11 @@ class Driver(generic.DB):
         cur = self.db.cursor()
 
         try:
-            cur.execute(
-                """
+            c = """
             INSERT INTO Tweets(Author, Text, Url, Tweet_Id, Screenshot, Deleted)
-            VALUES ('%s', '%s', '%s', '%s', '%s', '%s')
+            VALUES (?, ?, ?, ?, ?, ?)
             """
-                % (author, text, url, id_str, 0, 0)
-            )
+            cur.execute(c, (author, text, url, id_str, 0, 0))
             self.db.commit()
             # print "Wrote to database:", author, id_str
         except sqlite3.Error as e:
