@@ -105,7 +105,6 @@ def load_config(paths):
 
     for p in paths:
         c = try_load_json(os.path.expanduser(p))
-        print((p, c))
         if c: return c
 
     return []
