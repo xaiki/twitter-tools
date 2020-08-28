@@ -57,7 +57,10 @@ def load_db_driver(arg):
         db_driver = arg
         filename = None
     finally:
-        if db_driver == "mysql":
+        if db_driver == "tsv":
+            from DB.tsv import Driver
+            
+        elif db_driver == "mysql":
             from DB.mysql import Driver
 
             filename = filename or "mysql://"
@@ -145,7 +148,7 @@ DBS = {
     "flags": "-D, --database",
     "dest": "db",
     "help": "database system to use (mysql, sqlite, elasticsearch)",
-    "default": "sqlite",
+    "default": "tsv",
     "action": LoadDBDriverAction,
 }
 CSV_FILE = {
