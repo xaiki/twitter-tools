@@ -120,6 +120,7 @@ CONFIG_FILE = {
 IDS = {
     "flags": "-i, --ids",
     "dest": "ids",
+    "nargs": "+",
     "help": "twitter user ids, as a comma-separated list",
     "action": ParseComasAction,
 }
