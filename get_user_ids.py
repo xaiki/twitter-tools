@@ -2,8 +2,9 @@ import tweepy
 import time
 import csv
 import sys
-import config as c
+import logging
 
+import config as c
 
 def twitter_login():
     opts = c.parse_args([c.CONFIG_FILE, c.CSV_FILE, c.USERS])
@@ -15,8 +16,7 @@ def twitter_login():
     except KeyError:
         users = opts.csv
 
-    sys.stderr.write(f"looking for: {users}")
-
+    logging.info(f"looking for: {users}")
 
     auth = tweepy.OAuthHandler(authdata["consumer_key"], authdata["consumer_secret"])
     auth.set_access_token(authdata["access_token"], authdata["access_token_secret"])
@@ -30,10 +30,10 @@ if __name__ == "__main__":
     for screen_name in users:
         try:
             u = api.get_user(screen_name)
-            sys.stderr.write(f"""\n{screen_name} -> {u._json["id"]}""")
+            logging.info(f"""\n{screen_name} -> {u._json["id"]}""")
             handles.append(str(u._json["id"]))
         except Exception as e:
-            sys.stderr.write(f"ERROR: {e}, {authdata}")
+            logging.error(f"{e}, {authdata}")
 
     print("\n".join(handles) + "\n")
     

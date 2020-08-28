@@ -1,4 +1,6 @@
 import sqlite3
+import logging
+
 from . import generic
 
 class Driver(generic.DB):
@@ -33,31 +35,28 @@ class Driver(generic.DB):
             cur.execute(query)
             self.db.commit()
         except sqlite3.Error as e:
-            print(("Error", e))
+            logging.error(e)
             return False
         return True
 
     def writeSuccess(self, path):
-        if self._commit(
-            """UPDATE Tweets \
+        q = """UPDATE Tweets \
                       SET Screenshot=1 \
-                      WHERE Tweet_Id='%s'"""
-        ):
-            print(("Screenshot OK. Tweet id ", path))
+                      WHERE Tweet_Id='?'"""
+        if self._commit(q, path):
+            logging.info(f"Screenshot OK. Tweet id {path}")
             return True
-        print(("Warning:", path, "not saved to database"))
+        logging.warning(f"{path} not saved to database")
         return False
 
     def markDeleted(self, path):
-        if self._commit(
-            """UPDATE Tweets \
+        q =  """UPDATE Tweets \
                       SET Deleted=1 \
-                      WHERE Tweet_Id='%s'"""
-            % [path]
-        ):
-            print(("Tweet marked as deleted ", path))
+                      WHERE Tweet_Id='?'"""
+        if self._commit(q, path):
+            logging.info(f"Tweet marked as deleted {path}")
             return True
-        print(("Warning:", path, "not saved to database"))
+        logging.warning(f"{path} not saved to database")
         return False
 
     def getLogs(self,):
@@ -77,8 +76,8 @@ class Driver(generic.DB):
             """
             cur.execute(c, (author, text, url, id_str, 0, 0))
             self.db.commit()
-            # print "Wrote to database:", author, id_str
+            # logging.info("Wrote to database:", author, id_str)
         except sqlite3.Error as e:
-            print(("Error", e, c))
+            logging.error(e, c)
             self.db.rollback()
-            print("ERROR writing database")
+            logging.error("ERROR writing database")

@@ -1,5 +1,6 @@
 import networkx as nx
 import unicodedata
+import logging
 import json
 import re
 
@@ -67,7 +68,7 @@ class Driver(generic.DB):
 
         self.G = self._open_graph(self._user_graph)
         self.H = self._open_graph(self._hash_graph)
-        print("graphs opened", self.G.nodes(), self.H.nodes())
+        logging.info("graphs opened", self.G.nodes(), self.H.nodes())
 
     def _open_graph(self, filename):
         try:
@@ -82,10 +83,10 @@ class Driver(generic.DB):
         self.G.nodes[id]["deleted"] = True
 
     def writeSuccess(self, path):
-        print("NOT IMPLEMENTED")
+        logging.warning("NOT IMPLEMENTED")
 
     def getLogs(self):
-        print("NOT IMPLEMENTED")
+        logging.warning("NOT IMPLEMENTED")
 
     def _write_all(self):
         self._write(self.H, self._hash_graph)
@@ -102,7 +103,7 @@ class Driver(generic.DB):
 
         add_tags(self.H, text)
         add_users(self.G, text, status)
-        print("H", self.H.nodes())
+        logging.info("H", self.H.nodes())
         self._write_all()
 
 

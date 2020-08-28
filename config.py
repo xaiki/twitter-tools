@@ -5,6 +5,9 @@ import json
 import csv
 
 import argparse
+import logging
+
+logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 
 def flatten(lists):
     return [i for l in lists for i in l]
@@ -71,7 +74,7 @@ def load_db_driver(arg):
 
             filename = filename or "graph.gexf"
         else:
-            print(("ERROR could not find db driver for ", db_driver))
+            logging.error(f"ERROR could not find db driver for {db_driver}")
             sys.exit(-2)
 
         return Driver(filename)
@@ -100,7 +103,7 @@ def load_config(paths):
         except FileNotFoundError:
             return None
         except Exception as e:
-            print((e, "is your config file well formated ?"))
+            logging.error(f"{e} is your config file well formated ?")
             raise e
 
     for p in paths:

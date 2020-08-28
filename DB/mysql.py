@@ -1,4 +1,6 @@
 import MySQLdb
+import logging
+
 from . import generic
 
 
@@ -26,15 +28,15 @@ class MySQLDriver(generic.DB):
                 [path],
             )
             self.db.commit()
-            print(("Screenshot OK. Tweet id ", path))
+            logging.info(f"Screenshot OK. Tweet id {path}")
         except MySQLdb.Error as e:
             try:
-                print(("MySQL Error [%d]: %s" % (e.args[0], e.args[1])))
+                logging.error(("MySQL Error [%d]: %s" % (e.args[0], e.args[1])))
             except IndexError:
-                print(("MySQL Error: %s" % str(e)))
+                logging.error(("MySQL Error: %s" % str(e)))
 
-            print(("Error", e.args[0], e.args[1]))
-            print(("Warning:", path, "not saved to database"))
+            logging.error(("Error", e.args[0], e.args[1]))
+            logging.warning(("Warning:", path, "not saved to database"))
         return True
 
     def markDeleted(path):
@@ -47,15 +49,15 @@ class MySQLDriver(generic.DB):
                 [path],
             )
             self.db.commit()
-            print(("Tweet marked as deleted ", path))
+            logging.info(("Tweet marked as deleted ", path))
         except MySQLdb.Error as e:
             try:
-                print(("MySQL Error [%d]: %s" % (e.args[0], e.args[1])))
+                logging.error(("MySQL Error [%d]: %s" % (e.args[0], e.args[1])))
             except IndexError:
-                print(("MySQL Error: %s" % str(e)))
+                logging.error(("MySQL Error: %s" % str(e)))
 
-            print(("Error", e.args[0], e.args[1]))
-            print(("Warning:", path, "not saved to database"))
+            logging.error(("Error", e.args[0], e.args[1]))
+            logging.warning(("Warning:", path, "not saved to database"))
         return True
 
     def getLogs():
@@ -85,8 +87,8 @@ class MySQLDriver(generic.DB):
                 (author, text, url, id_str, 0, 0),
             )
             self.db.commit()
-            print(("Wrote to database:", author, id_str))
+            logging.info(("Wrote to database:", author, id_str))
         except MySQLdb.Error as e:
-            print(("Error", e.args[0], e.args[1]))
+            logging.error(("Error", e.args[0], e.args[1]))
             self.db.rollback()
-            print("ERROR writing database")
+            logging.error("ERROR writing database")

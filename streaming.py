@@ -2,6 +2,7 @@
 stream tweets to database driver and stdout
 """
 
+import logging
 import signal
 import sys
 
@@ -27,15 +28,14 @@ class StdOutListener(StreamListener):
         tweet_url = (
             "http://twitter.com/" + status.user.screen_name + "/status/" + status.id_str
         )
-        print(("TWEET", status.text))
-        print(("URL", tweet_url))
+        logging.info(f"TWEET: {tweet_url}\n{status.text}")
         self.database.save(tweet_url, status)
 
     def on_error(self, status):
         """
         error handler
         """
-        print(("error", status))
+        logging.error(status)
 
 def run():
     """
@@ -65,9 +65,9 @@ def run():
     # test authentication
     try:
         api.verify_credentials()
-        print("Authentication OK")
+        logging.info("authentification OK")
     except:
-        print("Error during authentication")
+        logging.error("Error during authentication")
 
     def signal_handler():
         database.close()
@@ -76,7 +76,7 @@ def run():
     signal.signal(signal.SIGINT, signal_handler)
 
     stream = tweepy.Stream(auth = auth, listener = listener)
-    print(("STREAM", stream_config))
+    logging.info(f"STREAM: {stream_config}")
     while True:
         try:
             stream.filter(**stream_config)

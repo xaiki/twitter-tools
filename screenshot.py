@@ -1,5 +1,7 @@
 # Run me with 'nosetests screenshot.py --with-save-baseline --nocapture'
 
+import logging
+
 from needle.cases import NeedleTestCase
 from needle.driver import NeedlePhantomJS
 
@@ -30,14 +32,14 @@ class captureTweetScreenshots(NeedleTestCase):
             try:
                 self.driver.get(Url)
             except:
-                print(("Url doesnt exist ", Url))
+                logging(f"url does not exist: {Url}")
                 logFile.write("Url doesnt exist \n")
                 continue
             try:
                 self.assertScreenshot(".tweet", Tweet_Id)
 
             except:
-                print(("Tweet deleted ", Url))
+                logging(f"tweet deleted: {Url}")
                 self.markDeleted(Tweet_Id)
                 message = "Tweet deleted %s \n" % Url
                 logFile.write(message)

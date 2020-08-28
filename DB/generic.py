@@ -1,18 +1,20 @@
+import logging
+
 class DB:
     def __init__(self):
         self.name = "Generic DB Driver"
 
     def getTweets(self):
-        print("NOT IMPLEMENTED")
+        logging.warning("NOT IMPLEMENTED")
 
     def writeSuccess(self, path):
-        print("NOT IMPLEMENTED")
+        logging.warning("NOT IMPLEMENTED")
 
     def markDeleted(self, path):
-        print("NOT IMPLEMENTED")
+        logging.warning("NOT IMPLEMENTED")
 
     def getLogs(self):
-        print("NOT IMPLEMENTED")
+        logging.warning("NOT IMPLEMENTED")
 
     def save(self, url, status):
-        print("NOT IMPLEMENTED")
+        logging.warning("NOT IMPLEMENTED")
