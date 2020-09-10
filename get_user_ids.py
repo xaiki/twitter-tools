@@ -40,7 +40,7 @@ def fetch(config, users, db):
 
 if __name__ == "__main__":
     DB_CONFIG = c.DBS
-    DB_CONFIG["default"] = c.load_db_driver("sqlite")
+    DB_CONFIG["default"] = "sqlite"
     
     opts = c.parse_args([DB_CONFIG, c.DEBUG, c.CONFIG_FILE, c.CSV_FILE, c.USERS, ])
     config = opts.config[0]

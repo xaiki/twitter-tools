@@ -82,7 +82,7 @@ class LoadDBDriverAction(argparse.Action):
 
     def __call__(self, parser, namespace, values, option_string=None):
         old_dbs = getattr(namespace, self.dest)
-        if type(old_dbs) is str:
+        if not isinstance(old_dbs, list):
             old_dbs = ()
 
         dbs = [load_db_driver(v) for v in values]
@@ -196,6 +196,9 @@ def parse_args(options):
         allow_abbrev=False
     )
 
+    if DBS in options:
+        DBS["default"] = load_db_driver(DBS["default"])
+
     def add_argument(o):
         flags = o.pop("flags")
         parser.add_argument(flags, **o)
@@ -209,11 +212,8 @@ def parse_args(options):
     add_argument(last)
 
     opts = parser.parse_args()
-    if DBS in options and type(DBS["default"]) == str:
-        if opts.db == DBS["default"]:
-            opts.db = MultiDriver(load_db_driver(DBS["default"]))
-        else:
-            opts.db = MultiDriver(opts.db)
+    if DBS in options:
+        opts.db = MultiDriver(opts.db)
 
     return opts
 
