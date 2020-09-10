@@ -30,15 +30,14 @@ def add_edge(G, n, p):
 
 def add_tags(G, text):
     tags = hashre.findall(text)
-    while len(tags) > 1:
-        t = normalize(tags.pop())
-        add_node(G, t)
-        for u in tags:
+    for i, t in enumerate(tags):
+        n = normalize(t)
+        add_node(G, n)
+        for u in tags[i:]:
             u = normalize(u)
             add_node(G, u)
             add_edge(G, t, u)
-    return G
-
+    return tags
 
 def add_users(G, text, status):
     users = set(userre.findall(text))
