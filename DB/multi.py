@@ -6,17 +6,20 @@ class MultiDriver(generic.DB):
         self.name = "Multiple Dispatch DB Driver"
         self.dbs = databases
 
+    def __getattribute__(self, name):
+        try:
+            return object.__getattribute__(self, name)
+        except AttributeError:
+            pass
+
+        def wrapper(*args, **kwargs):
+            for d in self.dbs:
+                try:
+                    getattr(d, name)(*args, **kwargs)
+                except AttributeError:
+                    logging.warn(f"{d} has no attribute {name}")
+
+        return wrapper
+
     def getTweets(self):
         return self.dbs[0].getTweets()
-
-    def writeSuccess(self, path):
-        return [d.writeSuccess(path) for d in self.dbs]
-
-    def markDeleted(self, path):
-        return [d.markDeleted(path) for d in self.dbs]
-
-    def getLogs(self):
-        return [d.getLogs() for d in self.dbs]
-
-    def save(self, url, status):
-        return [d.save(url, status) for d in self.dbs]
