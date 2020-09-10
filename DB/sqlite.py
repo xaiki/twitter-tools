@@ -80,17 +80,17 @@ class Driver(generic.DB):
             self.db.rollback()
             logging.error("ERROR writing database")
 
-    def saveAuthor(self, status):
-        (author, id) = (status.user.screen_name, status.author_id)
-        self.execute("""
-            UPSERT INTO Authors (Author, Id)
-            VALUES (?, ?)
-            """, (author, id))
         
     def saveTweet(self, url, status):
         (author, text, id_str) = (status.user.screen_name, status.text, status.id_str)
         self.execute("""
 INSERT INTO Tweets(Author, Text, Url, Tweet_Id, Screenshot, Deleted) \
         VALUES (?, ?, ?, ?, ?, ?)
-                     """, (author, text, url, id_str, 0, 0))
+        """, (author, text, url, id_str, 0, 0))
         
+    def saveAuthor(self, status):
+        (author, aid) = (status.user.screen_name, status.user.id)
+        self.execute("""
+            INSERT INTO Authors (Author, Id)
+            VALUES (?, ?) ON CONFLICT(Author) DO NOTHING
+            """, (author, aid))
