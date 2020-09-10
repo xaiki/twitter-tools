@@ -109,10 +109,13 @@ class Driver(generic.DB):
         text = self.extract_text(status)
 
         add_tags(self.H, text)
-        add_users(self.U, text, status)
         logging.info(f"H, {self.H.nodes()}")
         self._write_all()
 
+    def saveAuthor(self, status):
+        text = self.extract_text(status)
+        add_users(self.U, text, status)
+        self._write_all()
 
 if __name__ == "__main__":
     G = nx.Graph()
