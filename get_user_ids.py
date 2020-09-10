@@ -12,14 +12,8 @@ def twitter_login(config):
 
     return tweepy.API(auth)
 
-class MiniUser():
-    def __init__(self, author, id):
-        self.screen_name = author
-        self.id = id
-        
-class MiniStatus():
-    def __init__(self, author, id):
-        self.user = MiniUser(author, id)
+def make_status(name, id):
+    return SimpleNamespace(user=SimpleNamespace(screen_name = name, id = id))
 
 def fetch(config, users, db):
     logging.info(f"looking for: {users}")
@@ -35,7 +29,7 @@ def fetch(config, users, db):
             try:
                 if not api: api = twitter_login(config)
                 u = api.get_user(screen_name)._json['id']
-                db.saveAuthor(MiniStatus(screen_name, u))
+                db.saveAuthor(make_status(screen_name, u))
             except Exception as e:
                 logging.error(f"{e}, {config}")
                 break
