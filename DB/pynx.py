@@ -100,11 +100,13 @@ class Driver(generic.DB):
     def close(self):
         self._write_all()
 
-    def saveTweet(self, url, status):
+    def extract_text(self, status):
         try:
-            text = status.extended_tweet.text
+            return status.extended_tweet.text
         except AttributeError:
-            text = status.text
+            return status.text
+    def saveTweet(self, url, status):
+        text = self.extract_text(status)
 
         add_tags(self.H, text)
         add_users(self.U, text, status)
