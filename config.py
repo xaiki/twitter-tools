@@ -12,7 +12,7 @@ from get_user_ids import fetch
 
 from DB.multi import MultiDriver
 
-logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
+logging.basicConfig(format='%(asctime)s - %(pathname)s:%(lineno)s:%(funcName)s() - %(levelname)s - %(message)s', level=logging.INFO)
 
 def flatten(lists):
     return [i for l in lists for i in l]
