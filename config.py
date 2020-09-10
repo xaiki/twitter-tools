@@ -12,9 +12,8 @@ from get_user_ids import fetch
 
 from DB.multi import MultiDriver
 
-LOGGING_FORMAT = '%(asctime)s - %(pathname)s:%(lineno)s:%(funcName)s() - %(levelname)s - %(message)s'
-coloredlogs.install()
-logging.basicConfig(format=LOGGING_FORMAT, level=logging.INFO)
+LOGGING_FORMAT = '%(asctime)s - %(pathname)s:%(lineno)s:%(funcName)s()\n - %(levelname)s - %(message)s'
+coloredlogs.install(fmt=LOGGING_FORMAT)
 
 def flatten(lists):
     return [i for l in lists for i in l]
@@ -109,6 +108,14 @@ class FetchUsersAction(argparse.Action):
         ids = fetch(namespace.config[0], flatten([v.split(',') for v in values]))
         ids.extend(old_ids)
         setattr(namespace, self.dest, ids)
+
+class IncreaseVerbosityAction(argparse.Action):
+    """
+    up debug level
+    """
+
+    def __call__(self, parser, namespace, values, option_string=None):
+        coloredlogs.increase_verbosity()
         
 def load_config(paths):
     def try_load_json(j):
@@ -171,6 +178,12 @@ CSV_FILE = {
     "help": "load data from a csv file",
     "action": LoadRowFileAction,
 }
+DEBUG = {
+    "flags": "-v",
+    "help": "increase verbosity",
+    "action": IncreaseVerbosityAction,
+    "default": 0
+}
 
 options = [CONFIG_FILE, IDS, USERS, TERMS, DBS]
 
@@ -179,7 +192,8 @@ r = re.compile(r"\s+")
 
 def parse_args(options):
     parser = argparse.ArgumentParser(
-        description="Twitter Tools: query twitter from the commandline"
+        description="Twitter Tools: query twitter from the commandline",
+        allow_abbrev=False
     )
 
     def add_argument(o):
