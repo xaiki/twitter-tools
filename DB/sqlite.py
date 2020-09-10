@@ -20,6 +20,11 @@ class Driver(generic.DB):
                     Deleted INTEGER)"
         )
 
+        cur.execute(
+            "CREATE TABLE IF NOT EXISTS Authors (Author VARCHAR(255) PRIMARY KEY, \
+                    Id INTEGER)"
+        )
+
 
     def getTweets(self):
         cur = self.db.cursor()
@@ -65,18 +70,27 @@ class Driver(generic.DB):
             "SELECT Url, Tweet_Id FROM Tweets WHERE Screenshot=0 AND Deleted=0 "
         )
 
+    def execute(self, q, args):
         cur = self.db.cursor()
-
         try:
-            c = """
-            INSERT INTO Tweets(Author, Text, Url, Tweet_Id, Screenshot, Deleted)
-            VALUES (?, ?, ?, ?, ?, ?)
-            """
-            cur.execute(c, (author, text, url, id_str, 0, 0))
+            cur.execute(q, args)
             self.db.commit()
-            # logging.info("Wrote to database:", author, id_str)
         except sqlite3.Error as e:
             logging.error(e, c)
             self.db.rollback()
             logging.error("ERROR writing database")
+
     def saveAuthor(self, status):
+        (author, id) = (status.user.screen_name, status.author_id)
+        self.execute("""
+            UPSERT INTO Authors (Author, Id)
+            VALUES (?, ?)
+            """, (author, id))
+        
+    def saveTweet(self, url, status):
+        (author, text, id_str) = (status.user.screen_name, status.text, status.id_str)
+        self.execute("""
+INSERT INTO Tweets(Author, Text, Url, Tweet_Id, Screenshot, Deleted) \
+        VALUES (?, ?, ?, ?, ?, ?)
+                     """, (author, text, url, id_str, 0, 0))
+        
