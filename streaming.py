@@ -65,7 +65,7 @@ def run():
     except:
         logging.error("Error during authentication")
 
-    def signal_handler():
+    def signal_handler(*argv, **argh):
         database.close()
         sys.exit(0)
 
