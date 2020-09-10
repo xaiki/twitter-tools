@@ -1,3 +1,4 @@
+import os
 import sys
 import logging
 
@@ -8,9 +9,16 @@ class Driver(generic.DB):
         generic.DB.__init__(self)
 
         self.name = "Simplest TSV driver"
-        self.filename = filename
 
-        self.filename.write("id\tauthor\ttext\turl")
+        if type(filename) is str:
+            exists = os.path.exists(filename)
+            self.file = open(filename, 'a')
+            if not exists:
+                self.file.write("id\tauthor\ttext\turl")
+        else:
+            self.file = filename
+            self.file.write("id\tauthor\ttext\turl")
+
 
     def saveTweet(self, url, status):
         try:
@@ -18,7 +26,7 @@ class Driver(generic.DB):
         except AttributeError:
             text = status.text
 
-        self.filename.write("\t".join((
+        self.file.write("\t".join((
             status.id_str,
             status.user.screen_name,
             status.text.replace("\n", "\\n").replace("\t", "\\t"),
