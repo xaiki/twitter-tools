@@ -3,6 +3,7 @@ import os
 import sys
 import json
 import csv
+import importlib
 
 import argparse
 import logging
@@ -62,30 +63,16 @@ def load_db_driver(arg):
         db_driver = arg
         filename = None
     finally:
-        if db_driver == "tsv":
-            from DB.tsv import Driver
-            
-        elif db_driver == "mysql":
-            from DB.mysql import Driver
-
-            filename = filename or "mysql://"
-        elif db_driver == "sqlite":
-            from DB.sqlite import Driver
-
-            filename = filename or "twitter.sqlite"
-        elif db_driver == "elasticsearch":
-            from DB.elasticsearch import Driver
-
-            filename = filename or "ec://"
-        elif db_driver == "pynx":
-            from DB.pynx import Driver
-
-            filename = filename or "graph.gexf"
-        else:
+        try:
+            M = importlib.import_module(f"DB.{db_driver}")
+        except:
             logging.error(f"ERROR could not find db driver for {db_driver}")
             sys.exit(-2)
 
-        return Driver(filename)
+        if filename:
+            return M.Driver(filename)
+
+        return M.Driver()
 
 class LoadDBDriverAction(argparse.Action):
     """
