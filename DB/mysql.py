@@ -66,7 +66,7 @@ class MySQLDriver(generic.DB):
             "SELECT Url, Tweet_Id FROM Tweets WHERE Screenshot=0 AND Deleted=0 "
         )
 
-    def save(url, status):
+    def saveTweet(url, status):
         (author, text, id_str) = (status.user.screen_name, status.text, status.id_str)
         cur = db.cursor()
 

@@ -65,8 +65,6 @@ class Driver(generic.DB):
             "SELECT Url, Tweet_Id FROM Tweets WHERE Screenshot=0 AND Deleted=0 "
         )
 
-    def save(self, url, status):
-        (author, text, id_str) = (status.user.screen_name, status.text, status.id_str)
         cur = self.db.cursor()
 
         try:
@@ -81,3 +79,4 @@ class Driver(generic.DB):
             logging.error(e, c)
             self.db.rollback()
             logging.error("ERROR writing database")
+    def saveAuthor(self, status):

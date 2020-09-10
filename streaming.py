@@ -29,7 +29,8 @@ class StdOutListener(StreamListener):
             "http://twitter.com/" + status.user.screen_name + "/status/" + status.id_str
         )
         logging.info(f"TWEET: {tweet_url}\n{status.text}")
-        self.database.save(tweet_url, status)
+
+        self.database.saveTweet(tweet_url, status)
 
     def on_error(self, status):
         """

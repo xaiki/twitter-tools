@@ -11,7 +11,8 @@ class Driver(generic.DB):
         self.filename = filename
 
         print("id\tauthor\ttext\turl")
-    def save(self, url, status):
+
+    def saveTweet(self, url, status):
         try:
             text = status.extended_tweet.text
         except AttributeError:
