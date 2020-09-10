@@ -76,7 +76,7 @@ class Driver(generic.DB):
             cur.execute(q, args)
             self.db.commit()
         except sqlite3.Error as e:
-            logging.error(e, c)
+            logging.error(e, q, args)
             self.db.rollback()
             logging.error("ERROR writing database")
 
