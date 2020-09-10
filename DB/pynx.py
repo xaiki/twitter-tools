@@ -61,14 +61,19 @@ class Driver(generic.DB):
         self.name = "NetworkX DB Driver"
         self.filename = filename
         self.type = filename.split(".")[-1] or "gexf"
+        
         self._user_graph = "user-%s" % filename
         self._hash_graph = "hash-%s" % filename
+        self._twit_graph = "twit-%s" % filename
+        
         self._write = getattr(nx, "write_%s" % self.type)
         self._read = getattr(nx, "read_%s" % self.type)
 
-        self.G = self._open_graph(self._user_graph)
+        self.U = self._open_graph(self._user_graph)
         self.H = self._open_graph(self._hash_graph)
-        logging.info("graphs opened", self.G.nodes(), self.H.nodes())
+        self.T = self._open_graph(self._twit_graph)
+        
+        logging.info(f"graphs opened {self.U.nodes()} {self.H.nodes()} {self.T.nodes()}")
 
     def _open_graph(self, filename):
         try:
@@ -77,10 +82,10 @@ class Driver(generic.DB):
             return nx.Graph()
 
     def getTweets(self):
-        return [n for n in self.G.nodes()]
+        return [n for n in self.U.nodes()]
 
     def markDeleted(self, id):
-        self.G.nodes[id]["deleted"] = True
+        self.U.nodes[id]["deleted"] = True
 
     def writeSuccess(self, path):
         logging.warning("NOT IMPLEMENTED")
@@ -90,7 +95,7 @@ class Driver(generic.DB):
 
     def _write_all(self):
         self._write(self.H, self._hash_graph)
-        self._write(self.G, self._user_graph)
+        self._write(self.U, self._user_graph)
 
     def close(self):
         self._write_all()
@@ -102,8 +107,8 @@ class Driver(generic.DB):
             text = status.text
 
         add_tags(self.H, text)
-        add_users(self.G, text, status)
-        logging.info("H", self.H.nodes())
+        add_users(self.U, text, status)
+        logging.info(f"H, {self.H.nodes()}")
         self._write_all()
 
 
