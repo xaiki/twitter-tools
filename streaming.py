@@ -43,7 +43,7 @@ def run():
     """
     main entry point
     """
-    opts = c.parse_args([c.CONFIG_FILE, c.IDS, c.USERS, c.DBS, c.TERMS])
+    opts = c.parse_args([c.CONFIG_FILE, c.DEBUG, c.IDS, c.USERS, c.DBS, c.TERMS])
 
     database = opts.db
     config = opts.config[0]
