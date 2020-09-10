@@ -80,7 +80,14 @@ class LoadDBDriverAction(argparse.Action):
     """
 
     def __call__(self, parser, namespace, values, option_string=None):
-        setattr(namespace, self.dest, [load_db_driver(v) for v in values])
+        old_dbs = getattr(namespace, self.dest)
+        if type(old_dbs) is str:
+            old_dbs = ()
+
+        dbs = [load_db_driver(v) for v in values]
+
+        dbs.extend(old_dbs)
+        setattr(namespace, self.dest, dbs)
 
 class ParseComasAction(argparse.Action):
     """
