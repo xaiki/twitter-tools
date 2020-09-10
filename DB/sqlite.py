@@ -22,7 +22,7 @@ class Driver(generic.DB):
 
         cur.execute(
             "CREATE TABLE IF NOT EXISTS Authors (Author VARCHAR(255) PRIMARY KEY, \
-                    Id INTEGER)"
+                    Id INTEGER NOT NULL UNIQUE)"
         )
 
 
@@ -33,6 +33,12 @@ class Driver(generic.DB):
                     FROM Tweets \
                     WHERE Deleted=0"""
         )
+
+    def getAuthor(self, author):
+        cur = self.db.cursor()
+        return cur.execute(
+            """SELECT Id FROM Authors WHERE Author=?""", (author,)
+        ).fetchone()[0]
 
     def _commit(self, query):
         cur = self.db.cursor()
@@ -89,8 +95,8 @@ INSERT INTO Tweets(Author, Text, Url, Tweet_Id, Screenshot, Deleted) \
         """, (author, text, url, id_str, 0, 0))
         
     def saveAuthor(self, status):
-        (author, aid) = (status.user.screen_name, status.user.id)
+        args = (status.user.screen_name, status.user.id)
         self.execute("""
-            INSERT INTO Authors (Author, Id)
-            VALUES (?, ?) ON CONFLICT(Author) DO NOTHING
-            """, (author, aid))
+            INSERT INTO Authors(Author, Id)
+            VALUES(?, ?) ON CONFLICT(Author) DO NOTHING
+            """, args)
