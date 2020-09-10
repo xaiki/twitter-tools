@@ -60,10 +60,11 @@ def load_db_driver(arg):
     db_driver, filename = None, None
     try:
         db_driver, filename = arg.split(":")
-    except ValueError:
+    except:
         db_driver = arg
         filename = None
     finally:
+        print(db_driver, filename)
         try:
             M = importlib.import_module(f"DB.{db_driver}")
         except:
@@ -209,12 +210,12 @@ def parse_args(options):
     add_argument(last)
 
     opts = parser.parse_args()
-    if DBS in options:
+    if DBS in options and type(DBS["default"]) == str:
         if opts.db == DBS["default"]:
-            opts.db = MultiDriver([load_db_driver(DBS["default"])])
+            opts.db = MultiDriver(load_db_driver(DBS["default"]))
         else:
             opts.db = MultiDriver(opts.db)
-    
+
     return opts
 
 if __name__ == "__main__":

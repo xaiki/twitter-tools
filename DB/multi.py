@@ -4,7 +4,13 @@ import logging
 class MultiDriver(generic.DB):
     def __init__(self, databases):
         self.name = "Multiple Dispatch DB Driver"
-        self.dbs = databases
+
+        if type(databases) == list:
+            self.dbs = databases
+        else:
+            self.dbs = [databases]
+
+        logging.debug(self.dbs)
 
     def __getattribute__(self, name):
         try:
