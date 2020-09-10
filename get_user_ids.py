@@ -4,6 +4,8 @@ import csv
 import sys
 import logging
 
+from types import SimpleNamespace
+
 import config as c
 
 def twitter_login(config):
