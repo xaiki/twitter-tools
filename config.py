@@ -64,7 +64,6 @@ def load_db_driver(arg):
         db_driver = arg
         filename = None
     finally:
-        print(db_driver, filename)
         try:
             M = importlib.import_module(f"DB.{db_driver}")
         except:
