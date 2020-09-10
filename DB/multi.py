@@ -14,10 +14,14 @@ class MultiDriver(generic.DB):
 
         def wrapper(*args, **kwargs):
             for d in self.dbs:
+                logging.debug(f"{d} -> {name}({args})")
+                fn = None
                 try:
-                    getattr(d, name)(*args, **kwargs)
+                    fn = getattr(d, name)
                 except AttributeError:
                     logging.warn(f"{d} has no attribute {name}")
+
+                if fn: fn(*args, **kwargs)
 
         return wrapper
 
