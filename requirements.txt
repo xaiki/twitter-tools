@@ -2,3 +2,4 @@ tweepy
 needle
 pyinquirer
 clint
+coloredlogs

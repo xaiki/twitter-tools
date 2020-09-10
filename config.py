@@ -6,13 +6,15 @@ import csv
 import importlib
 
 import argparse
-import logging
+import coloredlogs, logging
 
 from get_user_ids import fetch
 
 from DB.multi import MultiDriver
 
-logging.basicConfig(format='%(asctime)s - %(pathname)s:%(lineno)s:%(funcName)s() - %(levelname)s - %(message)s', level=logging.INFO)
+LOGGING_FORMAT = '%(asctime)s - %(pathname)s:%(lineno)s:%(funcName)s() - %(levelname)s - %(message)s'
+coloredlogs.install()
+logging.basicConfig(format=LOGGING_FORMAT, level=logging.INFO)
 
 def flatten(lists):
     return [i for l in lists for i in l]
