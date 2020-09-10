@@ -106,7 +106,7 @@ class FetchUsersAction(argparse.Action):
 
     def __call__(self, parser, namespace, values, option_string=None):
         old_ids = getattr(namespace, self.dest) or ()
-        ids = fetch(namespace.config[0], flatten([v.split(',') for v in values]))
+        ids = fetch(namespace.config[0], flatten([v.split(',') for v in values]), namespace.db)
         ids.extend(old_ids)
         setattr(namespace, self.dest, ids)
 
