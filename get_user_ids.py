@@ -18,7 +18,10 @@ def make_status(name, id):
     return SimpleNamespace(user=SimpleNamespace(screen_name = name, id = id))
 
 def fetch(config, users, db):
-    logging.info(f"looking for: {users}")
+    if not (hasattr(db, 'getAuthor') and hasattr(db, 'saveAuthor')):
+        db = c.load_db_driver('sqlite')
+
+    logging.info(f"looking for: {users} in {db}")
 
     api = None
     handles = []
@@ -26,8 +29,8 @@ def fetch(config, users, db):
         try:
             u = db.getAuthor(screen_name)
 
-        except KeyError:
-            logging.warn(f"{screen_name} not found in DB {db}")
+        except (KeyError, AttributeError) as e:
+            logging.warn(f"{screen_name} not found in DB {db} ({e})")
             try:
                 if not api: api = twitter_login(config)
                 u = api.get_user(screen_name)._json['id']
