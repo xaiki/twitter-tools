@@ -36,9 +36,12 @@ class Driver(generic.DB):
 
     def getAuthor(self, author):
         cur = self.db.cursor()
-        return cur.execute(
+        r =  cur.execute(
             """SELECT Id FROM Authors WHERE Author=?""", (author,)
-        ).fetchone()[0]
+        ).fetchone()
+
+        if not r: raise KeyError(f"{author} not found")
+        return r[0]
 
     def _commit(self, query):
         cur = self.db.cursor()
