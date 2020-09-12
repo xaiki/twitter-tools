@@ -72,6 +72,9 @@ if __name__ == "__main__":
     try:
         ids = opts.ids
     except KeyError:
-        ids = fetch(config, opts.csv, opts.db)
+        ids = []
+
+    if opts.csv:
+        ids.extend(fetch(config, opts.csv, opts.db))
 
     print(ids)
