@@ -80,6 +80,10 @@ You might want to consider running all these with `cron` on a server. Just sayin
 
 Then uncomment line 2 and 34-40 in `save_to_db.py`
 
+## blocking massive amount of users
+You can use the `block.py` tool to block users massively.
+the `-f` flag allows to pass a CSV file
+
 ## finding similar users
 when looking for bots you may want to look for a LOT of similar usernames, we got you covered !
 
