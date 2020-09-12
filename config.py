@@ -115,7 +115,7 @@ class FetchUsersAction(argparse.Action):
         old_ids = getattr(namespace, self.dest) or ()
         ids = fetch(namespace.config[0], flatten([v.split(',') for v in values]), db)
         ids.extend(old_ids)
-        setattr(namespace, self.dest, ids)
+        setattr(namespace, 'ids', ids)
 
 class IncreaseVerbosityAction(argparse.Action):
     """
@@ -159,10 +159,17 @@ IDS = {
 }
 USERS = {
     "flags": "-u, --users",
-    "dest": "ids",
+    "dest": "users",
     "nargs": "*",
     "help": "twitter usernames, as a comma-separated list",
     "action": FetchUsersAction,
+}
+USERS_NOFETCH= {
+    "flags": "-u, --users",
+    "dest": "ids",
+    "nargs": "*",
+    "help": "twitter usernames, as a comma-separated list",
+    "action": ParseComasAction,
 }
 TERMS = {
     "flags": "-t, --track",
