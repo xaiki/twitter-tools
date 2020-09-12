@@ -22,7 +22,7 @@ class Driver(generic.DB):
 
         cur.execute(
             "CREATE TABLE IF NOT EXISTS Authors (Author VARCHAR(255) PRIMARY KEY, \
-                    Id INTEGER NOT NULL UNIQUE)"
+                    Id INTEGER UNIQUE)"
         )
 
 
