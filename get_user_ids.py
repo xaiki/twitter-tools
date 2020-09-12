@@ -34,12 +34,13 @@ def fetch(config, users, db):
         db.saveAuthor(make_status(screen_name, i))
     
     for screen_name in users:
+        sn = screen_name.lower()
         try:
-            i = db.getAuthor(screen_name)
-            if i: add_sn(screen_name, i)
+            i = db.getAuthor(sn)
+            if i: add_sn(sn, i)
         except (KeyError, AttributeError) as e:
-            logging.warn(f"{screen_name} not found in DB {db} ({e})")
-            need_fetch.append(screen_name)
+            logging.warn(f"{sn} not found in DB {db} ({e})")
+            need_fetch.append(sn)
 
     while len(need_fetch):
         if not api: api = twitter_login(config)
@@ -47,14 +48,17 @@ def fetch(config, users, db):
         batch = need_fetch[:TWITTER_BATCH_LIMIT]
         need_fetch = need_fetch[TWITTER_BATCH_LIMIT:]
 
+        logging.debug(f"this batch is {len(batch)}, still need to fetch {len(need_fetch)}")
+
         try:
             lu = api.lookup_users(user_ids = None, screen_names = batch, include_entities = False)
         except Exception as e:
             lu = []
             
         for u in lu:
-            add_sn(u._json['screen_name'], u._json['id'])
-            batch.remove(u._json['screen_name'])
+            sn = u._json['screen_name'].lower()
+            add_sn(sn, u._json['id'])
+            batch.remove(sn)
 
         for sn in batch:
             add_sn(sn, None)
@@ -77,4 +81,6 @@ if __name__ == "__main__":
     if opts.csv:
         ids.extend(fetch(config, opts.csv, opts.db))
 
-    print(ids)
+    print("screen_name\tid")
+    for u, i in ids:
+        print(f"{u}\t{i}")
