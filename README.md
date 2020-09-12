@@ -80,6 +80,31 @@ You might want to consider running all these with `cron` on a server. Just sayin
 
 Then uncomment line 2 and 34-40 in `save_to_db.py`
 
+## finding similar users
+when looking for bots you may want to look for a LOT of similar usernames, we got you covered !
+
+first you'll need to generate a list of usernames, you can do so with any password dict tool,
+we recomend you use https://github.com/LandGrey/pydictor
+
+and then pass it to `./get_user_ids.py -f` that will spit out a TSV of valid usernames and id
+pairs, it's all cached so you can run it multiple times.
+
+example:
+
+``` shell
+$ python3 pydictor.py --head alejandro --len 4 4 -base d -o usernames.csv
+                              _ _      _
+              _ __  _   _  __| (_) ___| |_ ___  _ __
+             | '_ \| | | |/ _` | |/ __| __/ _ \| '__|
+             | |_) | |_| | (_| | | (__| || (_) | |
+             | .__/ \__, |\__,_|_|\___|\__\___/|_|
+             |_|    |___/                            2.1.4.1#dev
+
+[+] A total of :10000 lines
+[+] Store in   :./results/blah.txt
+[+] Cost       :0.0529 seconds
+$ python3 get_user_ids.py -f results/usernames.csv > valid_usernames.tsv
+```
 
 ## License
 [PDD/ Unlicense](http://choosealicense.com/licenses/unlicense/)
