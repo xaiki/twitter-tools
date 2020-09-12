@@ -17,6 +17,8 @@ def twitter_login(config):
 def make_status(name, id):
     return SimpleNamespace(user=SimpleNamespace(screen_name = name, id = id))
 
+TWITTER_BATCH_LIMIT = 100
+    
 def fetch(config, users, db):
     if not (hasattr(db, 'getAuthor') and hasattr(db, 'saveAuthor')):
         db = c.load_db_driver('sqlite')
@@ -25,22 +27,39 @@ def fetch(config, users, db):
 
     api = None
     handles = []
+    need_fetch = []
+
+    def add_sn(screen_name, i):
+        if i: handles.append((screen_name, i))
+        db.saveAuthor(make_status(screen_name, i))
+    
     for screen_name in users:
         try:
-            u = db.getAuthor(screen_name)
-
+            i = db.getAuthor(screen_name)
+            if i: add_sn(screen_name, i)
         except (KeyError, AttributeError) as e:
             logging.warn(f"{screen_name} not found in DB {db} ({e})")
-            try:
-                if not api: api = twitter_login(config)
-                u = api.get_user(screen_name)._json['id']
-                db.saveAuthor(make_status(screen_name, u))
-            except Exception as e:
-                logging.error(f"{e}, {config}")
-                break
+            need_fetch.append(screen_name)
+
+    while len(need_fetch):
+        if not api: api = twitter_login(config)
+        
+        batch = need_fetch[:TWITTER_BATCH_LIMIT]
+        need_fetch = need_fetch[TWITTER_BATCH_LIMIT:]
+
+        try:
+            lu = api.lookup_users(user_ids = None, screen_names = batch, include_entities = False)
+        except Exception as e:
+            lu = []
             
-        handles.append(str(u))
-        logging.info(f"{screen_name} -> {u}")
+        for u in lu:
+            add_sn(u._json['screen_name'], u._json['id'])
+            batch.remove(u._json['screen_name'])
+
+        for sn in batch:
+            add_sn(sn, None)
+                    
+        logging.info(handles)
     return handles
 
 if __name__ == "__main__":
@@ -55,5 +74,4 @@ if __name__ == "__main__":
     except KeyError:
         ids = fetch(config, opts.csv, opts.db)
 
-    print("\n".join(ids) + "\n")
-    
+    print(ids)
