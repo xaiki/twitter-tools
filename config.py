@@ -35,9 +35,11 @@ class LoadRowFileAction(argparse.Action):
 
     def __call__(self, parser, namespace, filename, option_string=None):
         ret = []
+        logging.debug(f"opening {filename} as CSV")
         with open(filename) as f:
             for row in f:
-                ret.append(row)
+                s = row.rstrip()
+                if len(s): ret.append(s)
         setattr(namespace, self.dest, ret)
 
 
@@ -48,6 +50,7 @@ class LoadCSVAction(argparse.Action):
 
     def __call__(self, parser, namespace, filename, option_string=None):
         ret = []
+        logging.debug(f"opening {filename} as CSV")
         with open(filename, "rb") as csvfile:
             reader = csv.reader(csvfile, delimiter=",", quotechar="|")
             for row in reader:
