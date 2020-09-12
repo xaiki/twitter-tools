@@ -1,4 +1,3 @@
-import tweepy
 import time
 import csv
 import sys
@@ -7,12 +6,7 @@ import logging
 from types import SimpleNamespace
 
 import config as c
-
-def twitter_login(config):
-    auth = tweepy.OAuthHandler(config["consumer_key"], config["consumer_secret"])
-    auth.set_access_token(config["access_token"], config["access_token_secret"])
-
-    return tweepy.API(auth)
+import utils
 
 def make_status(name, id):
     return SimpleNamespace(user=SimpleNamespace(screen_name = name, id = id))
@@ -43,7 +37,7 @@ def fetch(config, users, db):
             need_fetch.append(sn)
 
     while len(need_fetch):
-        if not api: api = twitter_login(config)
+        if not api: api = utils.twitter_login(config)
         
         batch = need_fetch[:TWITTER_BATCH_LIMIT]
         need_fetch = need_fetch[TWITTER_BATCH_LIMIT:]
