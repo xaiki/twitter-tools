@@ -107,8 +107,13 @@ class FetchUsersAction(argparse.Action):
     """
 
     def __call__(self, parser, namespace, values, option_string=None):
+        try:
+            db = namespace.db
+        except AttributeError:
+            db = None
+
         old_ids = getattr(namespace, self.dest) or ()
-        ids = fetch(namespace.config[0], flatten([v.split(',') for v in values]), namespace.db)
+        ids = fetch(namespace.config[0], flatten([v.split(',') for v in values]), db)
         ids.extend(old_ids)
         setattr(namespace, self.dest, ids)
 
