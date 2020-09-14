@@ -121,7 +121,8 @@ class TestDrivers():
         if not hasattr(D, 'getAuthor'):
             pytest.skip("Driver does not implement optional feature: getAuthor")
 
-        D.getAuthor(TEST_USER.screen_name)
+        a = D.getAuthor(TEST_USER.screen_name)
+        assert(a[0] == TEST_USER.screen_name)
 
     def test_getTweets(self, driver, db_blacklist):
         D = self.test_load_driver(driver, db_blacklist)
