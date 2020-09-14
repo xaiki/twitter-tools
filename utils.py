@@ -2,6 +2,8 @@
 import tweepy
 import logging
 
+from types import SimpleNamespace
+
 def twitter_login(config):
     auth = tweepy.OAuthHandler(config["consumer_key"], config["consumer_secret"])
     auth.set_access_token(config["access_token"], config["access_token_secret"])

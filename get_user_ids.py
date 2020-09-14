@@ -3,13 +3,9 @@ import csv
 import sys
 import logging
 
-from types import SimpleNamespace
-
 import config as c
 import utils
-
-def make_status(name, id):
-    return SimpleNamespace(user=SimpleNamespace(screen_name = name, id = id))
+from DB import utils as db_utils
 
 TWITTER_BATCH_LIMIT = 100
     
@@ -23,15 +19,15 @@ def fetch(config, users, db):
     handles = []
     need_fetch = []
 
-    def add_sn(screen_name, i):
+    def add_sn(screen_name, i, date):
         if i: handles.append((screen_name, i))
-        db.saveAuthor(make_status(screen_name, i))
+        db.saveAuthor(db_utils.make_user(screen_name, i, date))
     
     for screen_name in users:
         sn = screen_name.lower()
         try:
             i = db.getAuthor(sn)
-            if i: add_sn(sn, i)
+            if i: handles.append(i)
         except (KeyError, AttributeError) as e:
             logging.warn(f"{sn} not found in DB {db} ({e})")
             need_fetch.append(sn)
@@ -51,7 +47,7 @@ def fetch(config, users, db):
             
         for u in lu:
             sn = u._json['screen_name'].lower()
-            add_sn(sn, u._json['id'])
+            add_sn(sn, u._json['id'], u._json['created_at'])
             batch.remove(sn)
 
         for sn in batch:

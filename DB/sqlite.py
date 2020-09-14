@@ -1,85 +1,118 @@
 import sqlite3
+import json
 import logging
+import sys
 
+from . import utils
 from . import generic
+
+VERSION = 1
+
+def migrate_0_1(db):
+    db.execute(
+        """CREATE TABLE IF NOT EXISTS tweets (id INTEGER PRIMARY KEY, \
+        screen_name VARCHAR(255), \
+        text VARCHAR(1024), \
+        date DATE, \
+        link VARCHAR(255), \
+        directed_to VARCHAR(255), \
+        replies INTEGER, \
+        retweets INTEGER, \
+        favorites INTEGER, \
+        geo VARCHAR(255), \
+        mentions VARCHAR(1024), \
+        hashtags VARCHAR(1024), \
+        Screenshot BOOLEAN, \
+        Deleted BOOLEAN)""")
+
+    db.execute(
+        """CREATE TABLE IF NOT EXISTS authors (screen_name VARCHAR(255) PRIMARY KEY, \
+        id INTEGER UNIQUE, \
+        date DATE)
+        """)
+
+    db.execute("PRAGMA user_version = 1")
+    
+MIGRATIONS = [
+    migrate_0_1
+]
 
 class Driver(generic.DB):
     def __init__(self, filename="twitter.db"):
         generic.DB.__init__(self)
-        self.db = sqlite3.connect(filename)
+        self.filename = filename
+        self.open()
+        
+    def open(self):
+        self.db = sqlite3.connect(self.filename)
 
+        self._migrate()
+
+    def close(self):
+        self.db.close()
+        
+    def _migrate(self):
         cur = self.db.cursor()
+        user_version = cur.execute(
+            """
+            PRAGMA user_version
+            """
+        ).fetchone()
+        version = user_version[0] if user_version else 0
 
-        cur.execute(
-            "CREATE TABLE IF NOT EXISTS Tweets (Id INTEGER PRIMARY KEY, \
-                    Author VARCHAR(255), \
-                    Text VARCHAR(255), \
-                    Url VARCHAR(255), \
-                    Tweet_Id VARCHAR(255), \
-                    Screenshot INTEGER, \
-                    Deleted INTEGER)"
-        )
-
-        cur.execute(
-            "CREATE TABLE IF NOT EXISTS Authors (Author VARCHAR(255) PRIMARY KEY, \
-                    Id INTEGER UNIQUE)"
-        )
-
+        if version != VERSION:
+            for i, m in enumerate(MIGRATIONS[version:VERSION]):
+                logging.info(f"running migration {i} -> {i+1} ({m})")
+                try:
+                    m(self)
+                except Exception as e:
+                    logging.critical(f"error {e} in migration {m}")
+                    sys.exit(-2)
 
     def getTweets(self):
         cur = self.db.cursor()
         return cur.execute(
             """SELECT * \
-                    FROM Tweets \
+                    FROM tweets \
                     WHERE Deleted=0"""
         )
 
-    def getAuthor(self, author):
+    def getAuthor(self, screen_name):
         cur = self.db.cursor()
         r =  cur.execute(
-            """SELECT Id FROM Authors WHERE Author=?""", (author,)
+            """SELECT * FROM authors WHERE screen_name=?""", (screen_name,)
         ).fetchone()
 
-        if not r: raise KeyError(f"{author} not found")
+        if not r: raise KeyError(f"{screen_name} not found")
         return r[0]
 
-    def _commit(self, query):
-        cur = self.db.cursor()
-        try:
-            cur.execute(query)
-            self.db.commit()
-        except sqlite3.Error as e:
-            logging.error(e)
-            return False
-        return True
-
-    def writeSuccess(self, path):
-        q = """UPDATE Tweets \
+    def writeSuccess(self, id):
+        q = """UPDATE tweets \
                       SET Screenshot=1 \
-                      WHERE Tweet_Id='?'"""
-        if self._commit(q, path):
-            logging.info(f"Screenshot OK. Tweet id {path}")
+                      WHERE id=?"""
+        if self.execute(q, (id,)):
+            logging.info(f"Screenshot OK. Tweet id {id}")
             return True
-        logging.warning(f"{path} not saved to database")
+        logging.warning(f"{id} not marked as success")
         return False
 
-    def markDeleted(self, path):
-        q =  """UPDATE Tweets \
+    def markDeleted(self, id):
+        q =  """UPDATE tweets \
                       SET Deleted=1 \
-                      WHERE Tweet_Id='?'"""
-        if self._commit(q, path):
-            logging.info(f"Tweet marked as deleted {path}")
+                      WHERE id=?"""
+        if self.execute(q, (id,)):
+            logging.info(f"Tweet marked as deleted {id}")
             return True
-        logging.warning(f"{path} not saved to database")
+        logging.warning(f"{id} not marked as deleted")
         return False
 
     def getLogs(self,):
         cur = self.db.cursor()
         return cur.execute(
-            "SELECT Url, Tweet_Id FROM Tweets WHERE Screenshot=0 AND Deleted=0 "
+            "SELECT link, id FROM tweets WHERE Screenshot=0 AND Deleted=0 "
         )
 
-    def execute(self, q, args):
+    def execute(self, q, args = []):
         cur = self.db.cursor()
         try:
             cur.execute(q, args)
@@ -88,18 +121,26 @@ class Driver(generic.DB):
             logging.error(e, q, args)
             self.db.rollback()
             logging.error("ERROR writing database")
+            return False
+        return True
 
         
-    def saveTweet(self, url, status):
-        (author, text, id_str) = (status.user.screen_name, status.text, status.id_str)
+    def saveTweet(self, status):
+        text = utils.extract_text(status)
+        date = status.created_at
+        if type(date) == str:
+            date = utils.make_date(status.created_at)
+            
         self.execute("""
-INSERT INTO Tweets(Author, Text, Url, Tweet_Id, Screenshot, Deleted) \
-        VALUES (?, ?, ?, ?, ?, ?)
-        """, (author, text, url, id_str, 0, 0))
+        INSERT INTO tweets(id, screen_name, text, date, link, directed_to, replies, geo, mentions, hashtags, Screenshot, Deleted) \
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 0)
+        """, (status.id, status.user.screen_name, text, date, status.link,
+              status.in_reply_to_screen_name, status.replies_count, status.geo,
+              json.dumps(status.entities.user_mentions), json.dumps(status.entities.hashtags)))
         
-    def saveAuthor(self, status):
-        args = (status.user.screen_name, status.user.id)
+    def saveAuthor(self, user):
+        args = (user.screen_name, user.id, user.created_at)
         self.execute("""
-            INSERT INTO Authors(Author, Id)
-            VALUES(?, ?) ON CONFLICT(Author) DO NOTHING
-            """, args)
+        INSERT INTO authors(screen_name, id, date)
+        VALUES(?, ?, ?) ON CONFLICT(screen_name) DO NOTHING
+        """, args)

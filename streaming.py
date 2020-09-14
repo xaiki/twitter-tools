@@ -49,13 +49,19 @@ def run():
     database = opts.db
     config = opts.config[0]
 
+    print (opts.ids)
+    if opts.ids:
+        ids = [str(i[1]) for i in opts.ids]
+    else:
+        ids = None
+        
     stream_config = {
-        "follow": opts.ids or None,
+        "follow": ids,
         "track": opts.track or None
     }
 
     listener = StdOutListener(database)
-    api = utils.twitter_login(conf)
+    api = utils.twitter_login(config)
 
     def signal_handler(*argv, **argh):
         database.close()
@@ -63,7 +69,7 @@ def run():
 
     signal.signal(signal.SIGINT, signal_handler)
 
-    stream = tweepy.Stream(auth = auth, listener = listener)
+    stream = tweepy.Stream(auth = api.auth, listener = listener)
     logging.info(f"STREAM: {stream_config}")
     while True:
         try:

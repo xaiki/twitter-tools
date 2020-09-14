@@ -1,8 +1,8 @@
 from . import generic
 import logging
 
-class MultiDriver(generic.DB):
-    def __init__(self, databases):
+class Driver(generic.DB):
+    def __init__(self, databases = []):
         self.name = "Multiple Dispatch DB Driver"
 
         if type(databases) == list:
@@ -33,3 +33,6 @@ class MultiDriver(generic.DB):
 
     def getTweets(self):
         return self.dbs[0].getTweets()
+
+    def _WIPE(self):
+        return [d._WIPE() for d in self.dbs]

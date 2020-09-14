@@ -10,7 +10,7 @@ import coloredlogs, logging
 
 from get_user_ids import fetch
 
-from DB.multi import MultiDriver
+from DB.multi import Driver as MultiDriver
 
 LOGGING_FORMAT = '%(asctime)s - %(pathname)s:%(lineno)s:%(funcName)s()\n - %(levelname)s - %(message)s'
 coloredlogs.install(fmt=LOGGING_FORMAT)
@@ -111,7 +111,7 @@ class FetchUsersAction(argparse.Action):
             db = namespace.db
         except AttributeError:
             db = None
-
+            
         old_ids = getattr(namespace, self.dest) or ()
         ids = fetch(namespace.config[0], flatten([v.split(',') for v in values]), db)
         ids.extend(old_ids)

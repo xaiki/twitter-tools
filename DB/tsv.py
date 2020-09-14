@@ -3,6 +3,7 @@ import sys
 import logging
 
 from . import generic
+from . import utils
 
 class Driver(generic.DB):
     def __init__(self, filename=sys.stdout):
@@ -10,25 +11,29 @@ class Driver(generic.DB):
 
         self.name = "Simplest TSV driver"
 
-        if type(filename) is str:
-            exists = os.path.exists(filename)
-            self.file = open(filename, 'a')
+        self.filename = filename
+        self.open()
+        
+    def close(self):
+        self.file.close()
+        
+    def open(self):
+        if type(self.filename) is str:            
+            exists = os.path.exists(self.filename)
+            self.file = open(self.filename, 'a')
             if not exists:
                 self.file.write("id\tauthor\ttext\turl")
         else:
-            self.file = filename
+            self.file = self.filename
             self.file.write("id\tauthor\ttext\turl")
 
 
-    def saveTweet(self, url, status):
-        try:
-            text = status.extended_tweet.text
-        except AttributeError:
-            text = status.text
+    def saveTweet(self, status):
+        text = utils.extract_text(status)
 
         self.file.write("\t".join((
-            status.id_str,
+            str(status.id),
             status.user.screen_name,
-            status.text.replace("\n", "\\n").replace("\t", "\\t"),
-            url
+            text.replace("\n", "\\n").replace("\t", "\\t"),
+            status.link
         )))

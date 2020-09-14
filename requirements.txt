@@ -3,3 +3,5 @@ needle
 pyinquirer
 clint
 coloredlogs
+GetOldTweets3
+pytest
