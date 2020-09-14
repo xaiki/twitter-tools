@@ -31,7 +31,8 @@ class StdOutListener(StreamListener):
         )
         logging.info(f"TWEET: {tweet_url}\n{status.text}")
 
-        self.database.saveTweet(tweet_url, status)
+        status.link = tweet_url
+        self.database.saveTweet(status)
         self.database.saveAuthor(status)
 
     def on_error(self, status):

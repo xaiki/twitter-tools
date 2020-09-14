@@ -79,12 +79,9 @@ class Driver(generic.DB):
 
     def getAuthor(self, screen_name):
         cur = self.db.cursor()
-        r =  cur.execute(
+        return  cur.execute(
             """SELECT * FROM authors WHERE screen_name=?""", (screen_name,)
         ).fetchone()
-
-        if not r: raise KeyError(f"{screen_name} not found")
-        return r[0]
 
     def writeSuccess(self, id):
         q = """UPDATE tweets \
