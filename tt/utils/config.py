@@ -38,9 +38,9 @@ def __add_config(config, new_config):
 
     return config.append(new_config)
 
-def add(config, new_config):
+def add(config, new_config, **args):
     config = __add_config(config, new_config)
-    write_config(config)
+    write(config, **args)
 
 def write(config, path = CONFIG_PATH):
     dirname = os.path.dirname(os.path.expanduser(path))
