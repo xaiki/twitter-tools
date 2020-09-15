@@ -68,5 +68,11 @@ class TestConfig():
         config = utils.config.load([TEST_CONFIG_FILENAME])
         assert(config[len(MOCK_CONFIG)] == MOCK_CONFIG_ENTRY)
 
+    def test_random_config(self,):
+        config = self.assert_write_config(MOCK_CONFIG, TEST_CONFIG_FILENAME)
+        n = len(config)
+        c = utils.config.get_random(config)
+        assert(n == len(config))
+
     def test_remove_config_last(self,):
         os.remove(TEST_CONFIG_FILENAME)
