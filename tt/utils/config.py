@@ -36,11 +36,12 @@ def __add_config(config, new_config):
             config[i] = new_config
             return config
 
-    return config.append(new_config)
+    return config + [new_config]
 
-def add(config, new_config, **args):
+def add(config, new_config, *args, **argskw):
+    logging.debug(f"adding {new_config} to {config}")
     config = __add_config(config, new_config)
-    write(config, **args)
+    write(config, *args, **argskw)
 
 def write(config, path = CONFIG_PATH):
     dirname = os.path.dirname(os.path.expanduser(path))
