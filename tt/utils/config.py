@@ -44,7 +44,6 @@ def add(config, new_config):
 
 def write(config, path = CONFIG_PATH):
     dirname = os.path.dirname(os.path.expanduser(path))
-    print('___', config, dirname, path)
     
     if not os.path.exists(dirname):
         os.makedirs(dirname, exist_ok = True)

@@ -8,7 +8,6 @@ from DB import utils as db_utils
 TWITTER_BATCH_LIMIT = 100
 
 def login(config):
-    print('config--->', config)
     auth = tweepy.OAuthHandler(config["consumer_key"], config["consumer_secret"])
     auth.set_access_token(config["access_token"], config["access_token_secret"])
 
