@@ -83,7 +83,7 @@ def create_app(config):
             'access_token_secret': resp['oauth_token_secret']    
         }
         
-        utils.add_config(config, new_config)
+        utils.config.add(config, new_config)
         
         return shutdown_server()
 

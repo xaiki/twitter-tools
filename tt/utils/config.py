@@ -6,7 +6,7 @@ import random
 
 CONFIG_PATH = "~/.config/twitter-tools/config.json"
 ALL_NEEDS = ['access_token', 'access_token_secret', 'consumer_key', 'consumer_secret']
-OAUTH_PROVIDER_NEEDS = ['access_token', 'access_token_secret', 'callback_url']
+OAUTH_PROVIDER_NEEDS = ['consumer_key', 'consumer_secret', 'callback_url']
 
 def try_load(j):
     try:
@@ -52,7 +52,8 @@ def write(config, path = CONFIG_PATH):
     with open(os.path.expanduser(path), "w") as f:
         f.write(json.dumps(config, indent=4))
 
-def get_random(configs, needs=ALL_NEEDS):
+def get_random(passed_config, needs=ALL_NEEDS):
+    configs = passed_config + []
     random.shuffle(configs)
     while len(configs):
         c = configs.pop()
