@@ -6,24 +6,22 @@ import sys
 import os
 import re
 
-if sys.version_info[0] < 3:
-    raise Exception("Python 2.x is not supported. Please upgrade to 3.x")
-
-sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
+basedir = os.path.join(os.path.dirname(__file__), "..")
+sys.path.append(os.path.join(basedir, 'tt'))
 
 BLACKLIST = ['__init__.py', '__pycache__', 'utils.py', 'generic.py', 'multi.py']
-drivers = [d.replace('.py', '') for d in os.listdir('DB') if not d in BLACKLIST]
+drivers = [d.replace('.py', '') for d in os.listdir(os.path.join(basedir, 'tt', 'DB')) if not d in BLACKLIST]
 
 from DB import utils
 
 TEST_DATE = "Sun Sep 13 14:21:23 +0000 2020"
 TEST_USER_DESCRIPTOR = {
     'username': 'test',
-    'id': 1,
+    'id': 10,
     'date': TEST_DATE,
 }
 TEST_STATUS_DESCRIPTOR = {
-    'id': 0,
+    'id': 120,
     'username': 'test',
     'user_id': 42,
     'user_date': TEST_DATE,
@@ -123,6 +121,8 @@ class TestDrivers():
 
         a = D.getAuthor(TEST_USER.screen_name)
         assert(a[0] == TEST_USER.screen_name)
+        assert(a[1] == TEST_USER.id)
+        assert(a[2] == TEST_USER.created_at)
 
     def test_getTweets(self, driver, db_blacklist):
         D = self.test_load_driver(driver, db_blacklist)

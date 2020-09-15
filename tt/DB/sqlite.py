@@ -2,6 +2,7 @@ import sqlite3
 import json
 import logging
 import sys
+from datetime import datetime
 
 from . import utils
 from . import generic
@@ -79,9 +80,12 @@ class Driver(generic.DB):
 
     def getAuthor(self, screen_name):
         cur = self.db.cursor()
-        return  cur.execute(
+        data = cur.execute(
             """SELECT * FROM authors WHERE screen_name=?""", (screen_name,)
         ).fetchone()
+        if not data: raise KeyError(f"{screen_name} not found")
+
+        return (data[0], data[1], datetime.strptime(data[2], '%Y-%m-%d %H:%M:%S'))
 
     def writeSuccess(self, id):
         q = """UPDATE tweets \

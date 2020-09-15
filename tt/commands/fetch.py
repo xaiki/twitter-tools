@@ -3,6 +3,7 @@
 import logging
 import GetOldTweets3 as got
 import config as c
+import utils
 
 def run():
     """
@@ -26,7 +27,7 @@ def run():
     opts = c.parse_args([c.CONFIG_FILE, c.DEBUG, GEO, WITHIN, c.USERS_NOFETCH, c.DBS, c.TERMS])
 
     database = opts.db
-    config = opts.config[0]
+    config = utils.config.get_random(opts.config)
 
     criteria = got.manager.TweetCriteria()
 

@@ -18,12 +18,12 @@ def run():
     }
     
     opts = c.parse_args([c.CONFIG_FILE, c.DEBUG, UNBLOCK, c.CSV_FILE, c.IDS, c.USERS])
-    config = opts.config[0]
+    config = utils.config.get_random(opts.config)
 
     if not len(opts.ids):
         return logging.error("need to provide at least one id")
     
-    api = utils.twitter_login(config)
+    api = utils.twitter.login(config)
 
     print(opts.unblock)
     if opts.unblock:

@@ -8,15 +8,21 @@ import importlib
 import argparse
 import coloredlogs, logging
 
-from get_user_ids import fetch
+import utils
+from utils.twitter import fetch_users
+from utils.config import load as load_config, get_random as get_random_config
 
 from DB.multi import Driver as MultiDriver
 
 LOGGING_FORMAT = '%(asctime)s - %(pathname)s:%(lineno)s:%(funcName)s()\n - %(levelname)s - %(message)s'
 coloredlogs.install(fmt=LOGGING_FORMAT)
 
+CONFIG_PATH = ["./config.json", "../config.json", "~/.config/twitter-tools/config.json"]
+CONFIG_FILENAME = None
+
 def flatten(lists):
     return [i for l in lists for i in l]
+
 
 class LoadJSONAction(argparse.Action):
     """
@@ -24,9 +30,19 @@ class LoadJSONAction(argparse.Action):
     """
 
     def __call__(self, parser, namespace, filename, option_string=None):
-        with open(filename) as data:
-            setattr(namespace, self.dest, json.load(data))
+        if type(filename) == str:
+            with open(filename) as data:
+                setattr(namespace, self.dest, json.load(data))
 
+
+class LoadConfigAction(argparse.Action):
+    """
+    load a json file as a config file: put it in an opt and save the filename
+    """
+
+    def __call__(self, parser, namespace, filename, option_string=None):
+        data = load_config(filename)
+        if data: setattr(namespace, self.dest, data)
 
 class LoadRowFileAction(argparse.Action):
     """
@@ -113,7 +129,7 @@ class FetchUsersAction(argparse.Action):
             db = None
             
         old_ids = getattr(namespace, self.dest) or ()
-        ids = fetch(namespace.config[0], flatten([v.split(',') for v in values]), db)
+        ids = fetch_users(utils.config.get_random(namespace.config), flatten([v.split(',') for v in values]), db)
         ids.extend(old_ids)
         setattr(namespace, 'ids', ids)
 
@@ -125,31 +141,15 @@ class IncreaseVerbosityAction(argparse.Action):
     def __call__(self, parser, namespace, values, option_string=None):
         coloredlogs.increase_verbosity()
         
-def load_config(paths):
-    def try_load_json(j):
-        try:
-            with open(j) as data:
-                return json.load(data)
-        except FileNotFoundError:
-            return None
-        except Exception as e:
-            logging.error(f"{e} is your config file well formated ?")
-            raise e
-
-    for p in paths:
-        c = try_load_json(os.path.expanduser(p))
-        if c: return c
-
-    return []
 
 CONFIG_FILE = {
     "flags": "-c, --config",
     "dest": "config",
     "help": "config file",
-    "action": LoadJSONAction,
-    "default": load_config(["./config.json", "../config.json", "~/.config/twitter-tools/config.json"])
+    "nargs": "*",
+    "action": LoadConfigAction,
+    "default": load_config(CONFIG_PATH)
 }
-
 IDS = {
     "flags": "-i, --ids",
     "dest": "ids",
@@ -221,8 +221,9 @@ def parse_args(options):
     last = options.pop()
     [add_argument(o) for o in options]
 
-    last["flags"] = last["dest"]
-    del last["dest"]
+    if last not in [DEBUG, CONFIG_FILE]:
+        last["flags"] = last["dest"]
+        del last["dest"]
 
     add_argument(last)
 

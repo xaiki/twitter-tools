@@ -1,0 +1,31 @@
+#!/usr/bin/env python3
+
+import sys
+import os
+
+if sys.version_info[0] < 3:
+    raise Exception("Python 2.x is not supported. Please upgrade to 3.x")
+
+sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
+sys.path.append(os.path.join(os.path.dirname(__file__), "../tt"))
+
+import tt.commands
+
+command_path = tt.commands.__path__[0]
+subcommands = [c.replace('.py', '') for c in os.listdir(command_path)]
+
+def help():
+    print(f"🎩 Usage {sys.argv[0]} [{'] ['.join(subcommands)}]")
+
+try:
+    command = sys.argv[1]
+    subcommands.index(command)
+except Exception:
+    help()
+    sys.exit(-2)
+
+args = sys.argv[2:]
+sys.argv = [command]
+sys.argv.extend(args)
+
+exec(open(f"{command_path}/{command}.py").read())

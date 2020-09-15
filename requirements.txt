@@ -5,3 +5,5 @@ clint
 coloredlogs
 GetOldTweets3
 pytest
+flask
+flask_oauthlib
