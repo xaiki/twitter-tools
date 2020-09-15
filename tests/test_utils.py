@@ -24,15 +24,25 @@ MOCK_CONFIG = [
     },
 ]
 
+MOCK_CONFIG_ENTRY = {
+        'name': 'test3',
+        "consumer_key": "XxXxXxxXXxXxxxxxXXxXXXxxx",
+        "consumer_secret": "XXxxXXXxxxXxxxxxxXxXXXxxxxxxxxxxxXXXxxxxxXxXXXXxXx",
+        "access_token": "xXXxXxxxxXxxxxxXXxxxxxxxxxxXxxxxxXXXxxxxxXxXxxXxxX",
+        "access_token_secret": "XxXxxXxxXXxXxXXxxxXxXXxxxxxxXxXXXxxxxXxXxXxxx"
+}
+
 class TestConfig():
     def assert_write_config(self, config, dest):
         utils.config.write(config, dest)
         assert(open(dest).read() == json.dumps(config, indent=4))
+        return config
 
     def assert_load_config(self, src_config, src):
         self.assert_write_config(src_config, src)
         config = utils.config.load([src])
         assert(config == src_config)
+        return config
         
     def test_write_empty_config(self,):
         self.assert_write_config([], TEST_CONFIG_FILENAME)
@@ -48,3 +58,15 @@ class TestConfig():
 
     def test_load_config(self,):
         self.assert_load_config(MOCK_CONFIG, TEST_CONFIG_FILENAME)
+
+    def test_remove_config(self,):
+        os.remove(TEST_CONFIG_FILENAME)
+
+    def test_add_config(self,):
+        config = self.assert_write_config(MOCK_CONFIG, TEST_CONFIG_FILENAME)
+        utils.config.add(config, MOCK_CONFIG_ENTRY, TEST_CONFIG_FILENAME)
+        config = utils.config.load([TEST_CONFIG_FILENAME])
+        assert(config[len(MOCK_CONFIG)] == MOCK_CONFIG_ENTRY)
+
+    def test_remove_config_last(self,):
+        os.remove(TEST_CONFIG_FILENAME)
