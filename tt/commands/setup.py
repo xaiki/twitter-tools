@@ -11,7 +11,7 @@ import sys
 import json
 import pathlib
 
-from PyInquirer import prompt, print_json
+from PyInquirer import prompt, print_json, Separator
 import utils
 import config as c
         
@@ -45,6 +45,32 @@ def ask_config_entry():
             'default': 'twitter-tools'
         },
         {
+            'type': 'checkbox',
+            'message': 'is this an user or app account ?',
+            'name': 'type',
+            'choices': [
+                Separator('if you have access token and password'),
+                { 'name': 'user', 'checked': True},
+                Separator('if you have a callback URL'),
+                { 'name': 'app' }
+            ]
+        }
+    ]
+
+    answers = prompt(questions)
+    print(answers)
+    answers.update(ask_consumer_tokens())
+
+    for t in answers['type']:
+        if t == 'user': answers.update(ask_access_tokens())
+        if t == 'app': answers.update(ask_callback_url())
+
+    del (answers['type'])
+    return answers
+
+def ask_consumer_tokens():
+    questions = [
+        {
             'type': 'password',
             'message': 'Enter your consumer key',
             'name': 'consumer_key',
@@ -56,6 +82,12 @@ def ask_config_entry():
             'name': 'consumer_secret',
             'validate': validate_length(45)
         },
+    ]
+
+    return prompt(questions)
+
+def ask_access_tokens():
+    questions = [
         {
             'type': 'password',
             'message': 'Enter your access token',
@@ -72,6 +104,19 @@ def ask_config_entry():
 
     return prompt(questions)
 
+def ask_callback_url():
+    questions = [
+        {
+            'type': 'input',
+            'message': 'what is your callback URL',
+            'name': 'callback_url',
+            'default': 'http://localhost:4290/oauth-authorized'
+        },
+    ]
+
+    return prompt(questions)
+
+
 
 def run():
     opts = c.parse_args([c.DEBUG, c.CONFIG_FILE])
@@ -85,7 +130,7 @@ def run():
 
         
     config.append(ask_config_entry())
-    utils.write_config(config)
+    utils.config.write(config)
 
 
 if __name__ == '__main__':
