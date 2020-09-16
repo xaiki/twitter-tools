@@ -20,6 +20,13 @@ TEST_USER_DESCRIPTOR = {
     'id': 10,
     'date': TEST_DATE,
 }
+
+TEST_NULL_USER_DESCRIPTOR = {
+    'username': 'null user',
+    'id': None,
+    'date': None,
+}
+
 TEST_STATUS_DESCRIPTOR = {
     'id': 120,
     'username': 'test',
@@ -37,7 +44,9 @@ TEST_STATUS_DESCRIPTOR = {
     'hashtags': ['#fun', '#test', '#twitter-tools']
 }
 TEST_USER = utils.make_user(**TEST_USER_DESCRIPTOR)
+TEST_NULL_USER = utils.make_user(**TEST_NULL_USER_DESCRIPTOR)
 TEST_STATUS = utils.make_status(**TEST_STATUS_DESCRIPTOR)
+
 
 class TestUtils():
     def test_make_date(self):
@@ -107,14 +116,14 @@ class TestDrivers():
 
         D.saveTweet(TEST_STATUS)
 
-    def test_saveAuthor(self, driver, db_blacklist):
+    def test_saveAuthor_hydrated(self, driver, db_blacklist):
         D = self.test_load_driver(driver, db_blacklist)
         if not hasattr(D, 'saveAuthor'):
             pytest.skip("Driver does not implement optional feature: saveAuthor")
         
         D.saveAuthor(TEST_USER)
 
-    def test_getAuthor(self, driver, db_blacklist):
+    def test_getAuthor_hydrated(self, driver, db_blacklist):
         D = self.test_load_driver(driver, db_blacklist)
         if not hasattr(D, 'getAuthor'):
             pytest.skip("Driver does not implement optional feature: getAuthor")
@@ -123,6 +132,24 @@ class TestDrivers():
         assert(a[0] == TEST_USER.screen_name)
         assert(a[1] == TEST_USER.id)
         assert(a[2] == TEST_USER.created_at)
+
+    def test_saveAuthor_null(self, driver, db_blacklist):
+        D = self.test_load_driver(driver, db_blacklist)
+        if not hasattr(D, 'saveAuthor'):
+            pytest.skip("Driver does not implement optional feature: saveAuthor")
+
+        D.saveAuthor(TEST_NULL_USER)
+
+    def test_getAuthor_null(self, driver, db_blacklist):
+        D = self.test_load_driver(driver, db_blacklist)
+        if not hasattr(D, 'getAuthor'):
+            pytest.skip("Driver does not implement optional feature: getAuthor")
+
+        a = D.getAuthor(TEST_NULL_USER.screen_name)
+        assert(a[0] == TEST_NULL_USER.screen_name)
+        assert(a[1] == TEST_NULL_USER.id)
+        assert(a[2] == TEST_NULL_USER.created_at)
+
 
     def test_getTweets(self, driver, db_blacklist):
         D = self.test_load_driver(driver, db_blacklist)
